@@ -64,3 +64,5 @@ PROJECT_DUMP.txt
 PROJECT_REPORT.txt
 
 .vercel
+
+.env*
