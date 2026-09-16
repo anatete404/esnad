@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Branch {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  city      String?
+  createdAt DateTime @default(now())
+
+  users        User[]
+  applications Application[]
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  nameAr      String
+  permissions String
+  users       User[]
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  fullName     String
+  phone        String?
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+
+  roleId     String
+  role       Role       @relation(fields: [roleId], references: [id])
+  branchId   String?
+  branch     Branch?    @relation(fields: [branchId], references: [id])
+  assignedApps Application[] @relation("AssignedTo")
+  reviewedApps Application[] @relation("ReviewedBy")
+  documents  Document[]
+  stageHistory StageHistory[]
+  surveys    Survey[]
+  auditLogs  AuditLog[]
+  notifications Notification[]
+}
+
+model Citizen {
+  id           String   @id @default(cuid())
+  nationalId   String   @unique
+  fullName     String
+  passwordHash String
+  phone        String
+  phone2       String?
+  email        String?
+  birthDate    DateTime?
+  address      String?
+  gov          String?
+  center       String?
+  village      String?
+  capacity     String   @default("مالك")
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  applications Application[]
+}
+
+model Application {
+  id             String    @id @default(cuid())
+  trackingNumber String    @unique
+  stage          String    @default("SUBMITTED")
+  status         String    @default("ACTIVE")
+  priority       String    @default("NORMAL")
+  notes          String?
+
+  citizenId     String
+  citizen       Citizen   @relation(fields: [citizenId], references: [id])
+
+  branchId      String?
+  branch        Branch?   @relation(fields: [branchId], references: [id])
+
+  assignedToId  String?
+  assignedTo    User?     @relation("AssignedTo", fields: [assignedToId], references: [id])
+
+  reviewedById  String?
+  reviewedBy    User?     @relation("ReviewedBy", fields: [reviewedById], references: [id])
+
+  submittedAt   DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  completedAt   DateTime?
+
+  land          Land?
+  documents     Document[]
+  stages        StageHistory[]
+  surveys       Survey[]
+  contract      Contract?
+  notifications Notification[]
+}
+
+model Land {
+  id            String      @id @default(cuid())
+  applicationId String      @unique
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  gov           String?
+  center        String?
+  village       String?
+  detail        String?
+
+  faddan        Float   @default(0)
+  qirat         Float   @default(0)
+  sahm          Float   @default(0)
+  totalFaddan   Float   @default(0)
+
+  lat           String?
+  lng           String?
+
+  handDate      DateTime?
+  handReason    String?
+  activity      String?
+  waterSource   String?
+  landStatus    String?
+}
+
+model Document {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  type          String
+  originalName  String
+  storagePath   String
+  mimeType      String
+  size          Int
+  isVerified    Boolean     @default(false)
+  verifiedById  String?
+  verifiedBy    User?       @relation(fields: [verifiedById], references: [id])
+  verifiedAt    DateTime?
+  notes         String?
+  uploadedAt    DateTime    @default(now())
+}
+
+model StageHistory {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  fromStage     String?
+  toStage       String
+  action        String
+  notes         String?
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id])
+  createdAt     DateTime    @default(now())
+}
+
+model Survey {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  surveyorId    String
+  surveyor      User        @relation(fields: [surveyorId], references: [id])
+
+  scheduledAt   DateTime?
+  completedAt   DateTime?
+  result        String?
+  notes         String?
+  createdAt     DateTime    @default(now())
+}
+
+model Contract {
+  id            String      @id @default(cuid())
+  applicationId String      @unique
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  contractNo    String      @unique
+  value         Float       @default(0)
+  paymentPlan   String?
+  signedAt      DateTime?
+  pdfPath       String?
+  createdAt     DateTime     @default(now())
+}
+
+model Notification {
+  id            String      @id @default(cuid())
+  citizenId     String?
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id])
+  applicationId String?
+  application   Application? @relation(fields: [applicationId], references: [id])
+  title         String
+  body          String
+  isRead        Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  oldValue  String?
+  newValue  String?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}

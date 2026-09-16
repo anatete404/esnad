@@ -1,0 +1,47 @@
+'use client'
+
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { Eye, FileText, Filter, Loader2, Search } from 'lucide-react'
+
+const STAGES = ['', 'SUBMITTED', 'INITIAL_REVIEW', 'DOCS_REVIEW', 'SURVEY', 'PRICING', 'COMMITTEE', 'CONTRACT', 'COMPLETED', 'REJECTED']
+const STATUSES = ['', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'REJECTED']
+const STAGE_LABELS: Record<string, string> = { SUBMITTED: 'تم التقديم', INITIAL_REVIEW: 'مراجعة أولية', DOCS_REVIEW: 'فحص المستندات', SURVEY: 'معاينة ميدانية', PRICING: 'تسعير', COMMITTEE: 'عرض على اللجنة', CONTRACT: 'تعاقد', COMPLETED: 'منجز', REJECTED: 'مرفوض' }
+const STATUS_LABELS: Record<string, string> = { ACTIVE: 'نشط', ON_HOLD: 'معلّق', COMPLETED: 'منجز', REJECTED: 'مرفوض' }
+type Row = { id: string; trackingNumber: string; stage: string; status: string; submittedAt: string; citizen: { fullName: string; nationalId: string; phone: string }; land: { gov: string | null; center: string | null; totalFaddan: number } | null; assignedTo: { fullName: string } | null; _count: { documents: number } }
+
+export default function ApplicationsListPage() {
+  const [items, setItems] = useState<Row[]>([])
+  const [q, setQ] = useState('')
+  const [stage, setStage] = useState('')
+  const [status, setStatus] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [total, setTotal] = useState(0)
+
+  const load = async () => {
+    setLoading(true)
+    const params = new URLSearchParams({ page: '1', pageSize: '50' })
+    if (q) params.set('q', q)
+    if (stage) params.set('stage', stage)
+    if (status) params.set('status', status)
+    try {
+      const res = await fetch(`/api/staff/applications?${params}`)
+      if (res.ok) { const data = await res.json(); setItems(data.items); setTotal(data.total) }
+    } finally { setLoading(false) }
+  }
+
+  useEffect(() => { void load() }, [stage, status])
+
+  return <div className="space-y-6">
+    <div><h1 className="text-[22px] font-extrabold">الطلبات</h1><p className="text-[12px] text-black/55 mt-1">إدارة ومتابعة طلبات التقنين ({total} طلب)</p></div>
+    <form onSubmit={(e) => { e.preventDefault(); void load() }} className="rounded-[18px] bg-white border border-black/5 p-4 grid md:grid-cols-[1fr_auto_auto_auto] gap-3">
+      <div className="relative"><Search className="absolute top-1/2 -translate-y-1/2 right-3 w-4 h-4 text-black/30" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ابحث برقم التتبع / الاسم / الرقم القومي / المحافظة" className="input pr-10" /></div>
+      <select value={stage} onChange={(e) => setStage(e.target.value)} className="input md:w-44">{STAGES.map((v) => <option key={v} value={v}>{v ? STAGE_LABELS[v] : 'كل المراحل'}</option>)}</select>
+      <select value={status} onChange={(e) => setStatus(e.target.value)} className="input md:w-36">{STATUSES.map((v) => <option key={v} value={v}>{v ? STATUS_LABELS[v] : 'كل الحالات'}</option>)}</select>
+      <button className="h-11 px-6 rounded-full bg-[#0d7a3e] text-white font-bold text-[13px] flex items-center gap-2"><Filter className="w-4 h-4" />تطبيق</button>
+    </form>
+    <div className="rounded-[18px] bg-white border border-black/5 overflow-hidden">
+      {loading ? <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-[#0d7a3e]" /></div> : items.length === 0 ? <div className="text-center py-16"><FileText className="w-10 h-10 mx-auto text-black/20" /><div className="mt-3 text-[14px] font-bold">لا توجد طلبات</div></div> : <div className="overflow-x-auto"><table className="w-full text-[12px]"><thead className="bg-[#f9fbf9]"><tr>{['رقم التتبع','المواطن','الموقع','المساحة','المرحلة','الحالة','مسند إلى',''].map((h) => <th key={h} className="text-right px-4 py-3 font-bold text-black/60">{h}</th>)}</tr></thead><tbody>{items.map((app) => <tr key={app.id} className="border-b border-black/5 hover:bg-[#f9fbf9]"><td className="px-4 py-3 font-mono font-bold text-[#0d7a3e]">{app.trackingNumber}<div className="text-[10px] text-black/45">{new Date(app.submittedAt).toLocaleDateString('ar-EG')}</div></td><td className="px-4 py-3 font-bold">{app.citizen.fullName}<div className="text-[10px] text-black/45">{app.citizen.nationalId}</div></td><td className="px-4 py-3">{app.land?.gov || '—'}<div className="text-[10px] text-black/45">{app.land?.center}</div></td><td className="px-4 py-3 font-bold">{app.land?.totalFaddan?.toFixed(2) || '0'} ف</td><td className="px-4 py-3"><span className="px-2 py-1 rounded-full bg-[#0d7a3e]/10 text-[#0d7a3e] font-bold">{STAGE_LABELS[app.stage] || app.stage}</span></td><td className="px-4 py-3"><span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 font-bold">{STATUS_LABELS[app.status] || app.status}</span></td><td className="px-4 py-3">{app.assignedTo?.fullName || 'غير مسند'}</td><td className="px-4 py-3"><Link href={`/portal/applications/${app.id}`} className="w-8 h-8 rounded-full bg-[#0d7a3e]/10 grid place-items-center text-[#0d7a3e]"><Eye className="w-4 h-4" /></Link></td></tr>)}</tbody></table></div>}
+    </div>
+  </div>
+}
