@@ -1,17 +1,15 @@
 'use client'
 
-import { X } from 'lucide-react'
-
 type Props = {
   stage: string
   status: string
 }
 
 const VISUAL_STEPS = [
-  { num: 1, label: 'المراجعة', stages: ['SUBMITTED', 'INITIAL_REVIEW'] },
-  { num: 2, label: 'سداد رسوم المعاينة', stages: ['DOCS_REVIEW'] },
-  { num: 3, label: 'المعاينة والتسعير', stages: ['SURVEY', 'PRICING'] },
   { num: 4, label: 'التعاقد', stages: ['COMMITTEE', 'CONTRACT', 'COMPLETED'] },
+  { num: 3, label: 'المعاينة والتسعير', stages: ['SURVEY', 'PRICING'] },
+  { num: 2, label: 'سداد رسوم المعاينة', stages: ['DOCS_REVIEW'] },
+  { num: 1, label: 'المراجعة', stages: ['SUBMITTED', 'INITIAL_REVIEW'] },
 ]
 
 function getVisualStep(stage: string): number {
@@ -52,10 +50,10 @@ export default function ApplicationTimeline({ stage, status }: Props) {
       label: 'text-black/40',
     },
     rejected: {
-      bg: 'bg-red-500',
-      border: 'border-red-500',
-      text: 'text-white',
-      label: 'text-red-500',
+      bg: 'bg-red-50',
+      border: 'border-red-300',
+      text: 'text-red-600',
+      label: 'text-red-600',
     },
   }
 
@@ -92,18 +90,11 @@ export default function ApplicationTimeline({ stage, status }: Props) {
                   <div
                     className={`w-10 h-10 md:w-14 md:h-14 rounded-full border-2 ${c.border} ${c.bg} grid place-items-center shadow-sm`}
                   >
-                    {state === 'rejected' ? (
-                      <X
-                        className="w-5 h-5 md:w-6 md:h-6 text-white"
-                        strokeWidth={3}
-                      />
-                    ) : (
-                      <span
-                        className={`text-[14px] md:text-[18px] font-extrabold ${c.text}`}
-                      >
-                        {step.num}
-                      </span>
-                    )}
+                    <span
+                      className={`text-[14px] md:text-[18px] font-extrabold ${c.text}`}
+                    >
+                      {step.num}
+                    </span>
                   </div>
                   <div
                     className={`text-[9px] md:text-[11px] font-bold text-center max-w-[68px] md:max-w-[110px] leading-tight ${c.label}`}
