@@ -19,7 +19,7 @@ export default async function ReportsPage() {
     prisma.application.count({ where: { ...where, status: 'ON_HOLD' } }),
     prisma.application.findMany({ where: { ...where, status: 'COMPLETED', completedAt: { not: null } }, select: { submittedAt: true, completedAt: true }, take: 200 }),
     prisma.application.groupBy({ by: ['stage'], where, _count: { _all: true } }),
-    prisma.$queryRaw<Array<{ month: string; count: bigint }>>`SELECT strftime('%Y-%m', submittedAt) as month, COUNT(*) as count FROM Application GROUP BY month ORDER BY month DESC LIMIT 6`,
+    prisma.$queryRaw<Array<{ month: string; count: number }>>`SELECT TO_CHAR("submittedAt", 'YYYY-MM') as month, COUNT(*)::int as count FROM "Application" GROUP BY month ORDER BY month DESC LIMIT 6`,
     prisma.citizen.count(),
     prisma.user.findMany({ where: { isActive: true }, select: { id: true, fullName: true, role: { select: { nameAr: true } }, _count: { select: { assignedApps: true } } }, orderBy: { assignedApps: { _count: 'desc' } }, take: 5 }),
   ])

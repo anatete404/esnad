@@ -8,10 +8,10 @@ import { logAudit } from '@/lib/audit'
 const createSchema = z.object({
   type: z.enum(['inspection', 'survey', 'pricing', 'other']),
   amount: z.number().positive('المبلغ يجب أن يكون أكبر من صفر'),
-  receiptNumber: z.string().optional(),
+  receiptNumber: z.string().nullable().optional(),
   receiptImageUrl: z.string().url().optional(),
-  paidAt: z.string().optional(),
-  notes: z.string().optional(),
+  paidAt: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
 })
 
 // GET: قائمة دفعات الطلب
