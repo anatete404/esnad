@@ -9,6 +9,8 @@ import {
   User,
 } from 'lucide-react'
 import ApplicationTimeline from './ApplicationTimeline'
+import AuthorityEditor from './AuthorityEditor'
+import PaymentsManager from './PaymentsManager'
 import { resolveStatusNote } from '@/lib/statusNote'
 
 type Payment = {
@@ -16,7 +18,9 @@ type Payment = {
   type: string
   amount: number
   receiptNumber: string | null
+  receiptImageUrl: string | null
   paidAt: Date | string | null
+  notes: string | null
 }
 
 type Props = {
@@ -38,6 +42,8 @@ type Props = {
     } | null
     payments: Payment[]
   }
+  applicationId?: string
+  canEdit?: boolean
 }
 
 function formatDate(d: Date | string): string {
@@ -56,7 +62,11 @@ function formatCurrency(n: number): string {
   })
 }
 
-export default function ApplicationDetailsCard({ application }: Props) {
+export default function ApplicationDetailsCard({
+  application,
+  applicationId,
+  canEdit = false,
+}: Props) {
   const statusNote = resolveStatusNote(
     application.stage,
     application.statusNote,
@@ -119,11 +129,19 @@ export default function ApplicationDetailsCard({ application }: Props) {
 
           {/* Row 3 */}
           <div className="grid grid-cols-1 md:grid-cols-2">
-            <Field
-              icon={MapPin}
-              label="جهة الولاية"
-              value={application.land?.authorityName || 'غير محدد'}
-            />
+            {applicationId ? (
+              <AuthorityEditor
+                applicationId={applicationId}
+                initialAuthority={application.land?.authorityName || null}
+                canEdit={canEdit}
+              />
+            ) : (
+              <Field
+                icon={MapPin}
+                label="جهة الولاية"
+                value={application.land?.authorityName || 'غير محدد'}
+              />
+            )}
             <Field
               icon={Phone}
               label="رقم الموبايل"
@@ -183,6 +201,13 @@ export default function ApplicationDetailsCard({ application }: Props) {
           </div>
         </div>
       </div>
+      {applicationId && (
+        <PaymentsManager
+          applicationId={applicationId}
+          initialPayments={application.payments}
+          canEdit={canEdit}
+        />
+      )}
     </div>
   )
 }

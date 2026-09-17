@@ -223,13 +223,14 @@ model Payment {
   applicationId String
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
-  type          String
-  amount        Float
-  receiptNumber String?
-  paidAt        DateTime?
-  notes         String?
-  createdById   String?
-  createdAt     DateTime  @default(now())
+  type            String
+  amount          Float
+  receiptNumber   String?
+  receiptImageUrl String?
+  paidAt          DateTime?
+  notes           String?
+  createdById     String?
+  createdAt       DateTime  @default(now())
 
   @@index([applicationId])
 }

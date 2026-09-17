@@ -56,5 +56,12 @@ export async function GET(
     return NextResponse.json({ error: 'لا تملك صلاحية' }, { status: 403 })
   }
 
-  return NextResponse.json({ application })
+  return NextResponse.json({
+    application,
+    permissions: {
+      canEditPayments: can(session, 'payments.edit'),
+      canDeletePayments: can(session, 'payments.delete'),
+      canEditAuthority: can(session, 'applications.edit'),
+    },
+  })
 }

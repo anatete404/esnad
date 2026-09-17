@@ -61,7 +61,9 @@ type Detail = {
     type: string;
     amount: number;
     receiptNumber: string | null;
+    receiptImageUrl: string | null;
     paidAt: string | null;
+    notes: string | null;
   }>;
   documents: Array<{
     id: string;
@@ -90,6 +92,7 @@ export default function StaffApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [app, setApp] = useState<Detail | null>(null);
+  const [canEdit, setCanEdit] = useState(false);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -113,6 +116,7 @@ export default function StaffApplicationDetailPage() {
     if (res.ok) {
       const data = await res.json();
       setApp(data.application);
+      setCanEdit(data.permissions?.canEditPayments ?? false);
       setToStage(data.application.stage);
       setSelectedStaff(data.application.assignedTo?.id || "");
     }
@@ -212,7 +216,11 @@ export default function StaffApplicationDetailPage() {
         <ArrowRight className="w-4 h-4" />
         رجوع للطلبات
       </Link>
-      <ApplicationDetailsCard application={app} />
+      <ApplicationDetailsCard
+        application={app}
+        applicationId={app.id}
+        canEdit={canEdit}
+      />
       {error && (
         <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 p-3">
           {error}

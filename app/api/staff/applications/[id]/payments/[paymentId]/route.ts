@@ -9,6 +9,7 @@ const updateSchema = z.object({
   type: z.enum(['inspection', 'survey', 'pricing', 'other']).optional(),
   amount: z.number().positive().optional(),
   receiptNumber: z.string().nullable().optional(),
+  receiptImageUrl: z.string().url().nullable().optional(),
   paidAt: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
 })
@@ -44,6 +45,7 @@ export async function PATCH(
     if (data.type !== undefined) updateData.type = data.type
     if (data.amount !== undefined) updateData.amount = data.amount
     if (data.receiptNumber !== undefined) updateData.receiptNumber = data.receiptNumber
+    if (data.receiptImageUrl !== undefined) updateData.receiptImageUrl = data.receiptImageUrl
     if (data.notes !== undefined) updateData.notes = data.notes
     if (data.paidAt !== undefined) {
       updateData.paidAt = data.paidAt ? new Date(data.paidAt) : null

@@ -86,6 +86,8 @@ export default async function TrackingDetailPage({
           type: true,
           amount: true,
           receiptNumber: true,
+          receiptImageUrl: true,
+          notes: true,
           paidAt: true,
         },
       },
@@ -118,7 +120,11 @@ export default async function TrackingDetailPage({
           <ArrowRight className="w-4 h-4" />
           بحث برقم آخر
         </Link>
-        <ApplicationDetailsCard application={application} />
+        <ApplicationDetailsCard
+          application={application}
+          applicationId={application.id}
+          canEdit={false}
+        />
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatCard

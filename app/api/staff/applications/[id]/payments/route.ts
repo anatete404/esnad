@@ -9,6 +9,7 @@ const createSchema = z.object({
   type: z.enum(['inspection', 'survey', 'pricing', 'other']),
   amount: z.number().positive('المبلغ يجب أن يكون أكبر من صفر'),
   receiptNumber: z.string().optional(),
+  receiptImageUrl: z.string().url().optional(),
   paidAt: z.string().optional(),
   notes: z.string().optional(),
 })
@@ -100,6 +101,7 @@ export async function POST(
         type: data.type,
         amount: data.amount,
         receiptNumber: data.receiptNumber || null,
+        receiptImageUrl: data.receiptImageUrl || null,
         paidAt: data.paidAt ? new Date(data.paidAt) : null,
         notes: data.notes || null,
         createdById: session.id,
