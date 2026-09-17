@@ -91,6 +91,10 @@ export default async function TrackingDetailPage({
     <>
       <PublicHeader />
       <div className="max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-12">
+        <div className="mb-6">
+          <ApplicationTimeline stage={application.stage} status={application.status} />
+        </div>
+
         <Link
           href="/track"
           className="inline-flex items-center gap-2 text-[13px] font-bold text-black/60 hover:text-black mb-6"
@@ -112,10 +116,6 @@ export default async function TrackingDetailPage({
               {STATUS_LABELS[application.status] || application.status}
             </span>
           </div>
-        </div>
-
-        <div className="mt-6">
-          <ApplicationTimeline stage={application.stage} status={application.status} />
         </div>
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">

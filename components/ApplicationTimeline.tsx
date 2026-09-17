@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, X } from 'lucide-react'
+import { X } from 'lucide-react'
 
 type Props = {
   stage: string
@@ -92,12 +92,7 @@ export default function ApplicationTimeline({ stage, status }: Props) {
                   <div
                     className={`w-10 h-10 md:w-14 md:h-14 rounded-full border-2 ${c.border} ${c.bg} grid place-items-center shadow-sm`}
                   >
-                    {state === 'completed' ? (
-                      <Check
-                        className="w-5 h-5 md:w-6 md:h-6 text-white"
-                        strokeWidth={3}
-                      />
-                    ) : state === 'rejected' ? (
+                    {state === 'rejected' ? (
                       <X
                         className="w-5 h-5 md:w-6 md:h-6 text-white"
                         strokeWidth={3}
