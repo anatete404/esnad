@@ -80,7 +80,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
               </div>
               <div className="leading-tight hidden sm:block">
                 <div className="text-[13px] font-extrabold">بوابة الموظفين</div>
-                <div className="text-[10px] text-white/50">مؤسسة حسن حسن علي</div>
+                <div className="text-[10px] text-white/50">منصة إسناد للتنمية الزراعية</div>
               </div>
             </Link>
           </div>

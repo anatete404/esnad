@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import PublicHeader from '@/components/PublicHeader'
 import PublicFooter from '@/components/PublicFooter'
+import ApplicationTimeline from '@/components/ApplicationTimeline'
 import { prisma } from '@/lib/prisma'
 import { formatDate } from '@/lib/utils'
 
@@ -111,6 +112,10 @@ export default async function TrackingDetailPage({
               {STATUS_LABELS[application.status] || application.status}
             </span>
           </div>
+        </div>
+
+        <div className="mt-6">
+          <ApplicationTimeline stage={application.stage} status={application.status} />
         </div>
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">

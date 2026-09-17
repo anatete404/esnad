@@ -5,7 +5,7 @@ export default function PublicFooter() {
     <footer className="mt-16 bg-[#0a0f0d] text-white">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-[12px] leading-7 md:grid-cols-3 md:px-6">
         <div>
-          <div className="text-[15px] font-extrabold">مؤسسة حسن حسن علي</div>
+          <div className="text-[15px] font-extrabold">منصة إسناد للتنمية الزراعية</div>
           <div className="mt-3 opacity-70">
             لاستصلاح الأراضي الصحراوية • سجل تجاري 157574 منذ 2004
             <br />
@@ -38,7 +38,7 @@ export default function PublicFooter() {
         </div>
       </div>
       <div className="border-t border-white/10 py-4 text-center text-[11px] opacity-60">
-        © 2024 - 2026 مؤسسة حسن حسن علي. جميع الحقوق محفوظة.
+        © 2024 - 2026 منصة إسناد للتنمية الزراعية. جميع الحقوق محفوظة.
       </div>
     </footer>
   )

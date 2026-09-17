@@ -133,7 +133,7 @@ export default function PublicHeader({ userName }: { userName?: string }) {
           </div>
           <div className="leading-tight">
             <div className="text-[15px] font-extrabold tracking-tight">
-              مؤسسة حسن حسن علي
+              منصة إسناد للتنمية الزراعية
             </div>
             <div className="text-[10px] font-semibold text-black/60">
               منظومة تقنين أراضي الدولة
