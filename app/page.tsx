@@ -58,7 +58,7 @@ export default async function HomePage() {
               منصة متكاملة لتقديم ومتابعة
               <br />
               <span className="bg-gradient-to-l from-[#0d7a3e] to-[#0a5c2f] bg-clip-text text-transparent">
-                طلبات تقنين أراضي الدولة
+                طلبات تقنين الأراضي
               </span>
             </h1>
 

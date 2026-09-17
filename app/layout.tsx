@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'إسناد | تقنين أراضي الدولة',
+  title: 'إسناد | تقنين الأراضي',
   description: 'منصة متكاملة لتقديم ومتابعة طلبات تقنين أوضاع الأراضي',
 }
 

@@ -6,10 +6,10 @@ type Props = {
 }
 
 const VISUAL_STEPS = [
-  { num: 4, label: 'التعاقد', stages: ['COMMITTEE', 'CONTRACT', 'COMPLETED'] },
-  { num: 3, label: 'المعاينة والتسعير', stages: ['SURVEY', 'PRICING'] },
-  { num: 2, label: 'سداد رسوم المعاينة', stages: ['DOCS_REVIEW'] },
   { num: 1, label: 'المراجعة', stages: ['SUBMITTED', 'INITIAL_REVIEW'] },
+  { num: 2, label: 'سداد رسوم المعاينة', stages: ['DOCS_REVIEW'] },
+  { num: 3, label: 'المعاينة والتسعير', stages: ['SURVEY', 'PRICING'] },
+  { num: 4, label: 'التعاقد', stages: ['COMMITTEE', 'CONTRACT', 'COMPLETED'] },
 ]
 
 function getVisualStep(stage: string): number {
@@ -59,14 +59,14 @@ export default function ApplicationTimeline({ stage, status }: Props) {
 
   return (
     <div className="w-full bg-white rounded-[20px] border border-black/5 p-5 md:p-6 shadow-sm">
-      <div className="flex items-center gap-2 md:gap-3" dir="rtl">
+      <div className="flex items-start gap-2 md:gap-3" dir="rtl">
         {/* بداية */}
-        <div className="px-3 py-1.5 rounded-lg bg-[#0d7a3e] text-white text-[11px] md:text-[12px] font-bold shrink-0">
+        <div className="px-3 py-1.5 rounded-lg bg-[#0d7a3e] text-white text-[11px] md:text-[12px] font-bold shrink-0 mt-[6px] md:mt-[14px]">
           بداية
         </div>
 
         {/* Steps */}
-        <div className="flex items-center flex-1 min-w-0">
+        <div className="flex items-start flex-1 min-w-0">
           {VISUAL_STEPS.map((step, i) => {
             const state = getState(step.num)
             const c = colors[state]
@@ -82,11 +82,13 @@ export default function ApplicationTimeline({ stage, status }: Props) {
                     : 'bg-black/10'
 
             return (
-              <div key={step.num} className="flex items-center flex-1 min-w-0">
+              <div key={step.num} className="flex items-start flex-1 min-w-0">
                 {i > 0 && (
-                  <div className={`flex-1 h-1 rounded-full transition-colors ${lineBg}`} />
+                  <div
+                    className={`flex-1 h-1 rounded-full mt-[18px] md:mt-[26px] transition-colors ${lineBg}`}
+                  />
                 )}
-                <div className="flex flex-col items-center gap-1.5 md:gap-2 shrink-0">
+                <div className="flex flex-col items-center shrink-0">
                   <div
                     className={`w-10 h-10 md:w-14 md:h-14 rounded-full border-2 ${c.border} ${c.bg} grid place-items-center shadow-sm`}
                   >
@@ -97,7 +99,7 @@ export default function ApplicationTimeline({ stage, status }: Props) {
                     </span>
                   </div>
                   <div
-                    className={`text-[9px] md:text-[11px] font-bold text-center max-w-[68px] md:max-w-[110px] leading-tight ${c.label}`}
+                    className={`mt-1.5 md:mt-2 min-h-[36px] md:min-h-[44px] text-[9px] md:text-[11px] font-bold text-center max-w-[68px] md:max-w-[110px] leading-tight ${c.label}`}
                   >
                     {step.label}
                   </div>
@@ -108,12 +110,11 @@ export default function ApplicationTimeline({ stage, status }: Props) {
         </div>
 
         {/* نهاية */}
-        <div className="px-3 py-1.5 rounded-lg bg-[#f59e0b] text-white text-[11px] md:text-[12px] font-bold shrink-0">
+        <div className="px-3 py-1.5 rounded-lg bg-[#f59e0b] text-white text-[11px] md:text-[12px] font-bold shrink-0 mt-[6px] md:mt-[14px]">
           نهاية
         </div>
       </div>
 
-      {/* Rejected banner */}
       {isRejected && (
         <div className="mt-4 rounded-xl bg-red-50 border border-red-200 p-3 text-center">
           <div className="text-[12px] md:text-[13px] font-bold text-red-700">
@@ -122,7 +123,6 @@ export default function ApplicationTimeline({ stage, status }: Props) {
         </div>
       )}
 
-      {/* On hold banner */}
       {status === 'ON_HOLD' && !isRejected && (
         <div className="mt-4 rounded-xl bg-amber-50 border border-amber-200 p-3 text-center">
           <div className="text-[12px] md:text-[13px] font-bold text-amber-800">
