@@ -1,0 +1,65 @@
+name: Daily Database Backup
+
+on:
+  schedule:
+    # كل يوم الساعة 3 صباحاً UTC = 5 صباحاً بتوقيت القاهرة
+    - cron: '0 3 * * *'
+  workflow_dispatch: # للسماح بالتشغيل اليدوي
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Create backup
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          mkdir -p backups
+          DATE=$(date +"%Y-%m-%d_%H-%M-%S")
+          FILENAME="backups/db_backup_$DATE.sql"
+
+          # استخراج بيانات الاتصال
+          # DATABASE_URL format: postgresql://user:pass@host/db?params
+          echo "Starting pg_dump..."
+
+          # pg_dump using DATABASE_URL directly
+          pg_dump "$DATABASE_URL" \
+            --no-owner \
+            --no-acl \
+            --clean \
+            --if-exists \
+            -f "$FILENAME"
+
+          # التحقق من الملف
+          SIZE=$(stat -c%s "$FILENAME")
+          echo "Backup size: $SIZE bytes"
+
+          if [ "$SIZE" -lt 1000 ]; then
+            echo "ERROR: Backup file too small ($SIZE bytes)"
+            exit 1
+          fi
+
+          echo "BACKUP_FILE=$FILENAME" >> $GITHUB_ENV
+          echo "Backup created: $FILENAME"
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-backup-${{ github.run_number }}
+          path: backups/*.sql
+          retention-days: 30
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Backup failed! Check the logs above."

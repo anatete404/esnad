@@ -120,4 +120,43 @@ bash scripts/restore.sh backups/backup_XXXX.tar.gz
 
 ---
 
+## 🔐 ملاحظات أمنية
+
+### بيانات الاعتماد الافتراضية (Dev Only)
+- ملف `prisma/seed.ts` يزرع بيانات اختبار (Admin + Test users)
+- **لا تستخدم هذه البيانات في الإنتاج**
+- بعد أول تسليم، غيّر كلمات السر من `/portal/users`
+
+### متغيرات البيئة
+- `SEED_ADMIN_PASSWORD` و `SEED_TEST_PASSWORD` مخصصة للتطوير فقط
+- في الإنتاج، احذفهما من `.env` واستخدم `prisma db seed` ببيانات نظيفة
+
+### الصلاحيات المستقبلية
+- بعض الـ permissions في `lib/rbac.ts` معرّفة للاستخدام القادم (roadmap)
+- راجع التعليق في الملف لمعرفة الصلاحيات المؤجلة
+
+### Cookies والأمان
+- الجلسات محمية بـ `httpOnly` + `secure` + `sameSite=lax`
+- `JWT_SECRET` يجب أن يكون 32+ حرف عشوائي في الإنتاج
+
+## 🧪 الاختبارات
+
+```bash
+npm test              # تشغيل الاختبارات مرة واحدة
+npm run test:watch    # وضع المراقبة
+npm run test:ui       # واجهة UI
+```
+
+تغطي الاختبارات:
+- `lib/utils.ts` — الحسابات والتحويلات
+- `lib/statusNote.ts` — نصوص الحالة
+- `lib/rbac.ts` — الصلاحيات والأدوار
+
+## 🔄 CI/CD
+
+- **CI** (`.github/workflows/ci.yml`): TypeScript + Tests + Build على كل push
+- **Backup** (`.github/workflows/backup.yml`): نسخة يومية من الداتابيز
+
+---
+
 © 2024-2026 منصة إسناد للتنمية الزراعية. جميع الحقوق محفوظة.

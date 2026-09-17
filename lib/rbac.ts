@@ -1,3 +1,17 @@
+// ==========================================
+// PERMISSIONS
+// - permissions المستخدمة حالياً: مرتبطة بـ API routes مباشرة
+// - permissions المستقبلية: معرّفة للاستخدام القادم (roadmap)
+//   ولن تُستخدم حتى يتم تفعيل الميزة المقابلة
+// ==========================================
+// Reserved for future features (not yet wired to routes):
+//   - applications.approve
+//   - applications.reject
+//   - documents.delete
+//   - contracts.sign
+//   - settings.manage
+// ==========================================
+
 export const PERMISSIONS = {
   'applications.view': 'عرض الطلبات',
   'applications.create': 'إنشاء طلب',

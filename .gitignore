@@ -69,3 +69,6 @@ PROJECT_REPORT.txt
 
 backup-*.zip
 backups/
+
+# Audit reports (temporary)
+AUDIT_REPORT.txt

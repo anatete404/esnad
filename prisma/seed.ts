@@ -2,6 +2,11 @@ import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { ROLES } from '../lib/rbac'
 
+// ==========================================
+// DEV ONLY — THIS SEED FILE IS FOR DEVELOPMENT/TESTING
+// Production credentials MUST be rotated after deployment
+// ==========================================
+
 const prisma = new PrismaClient()
 
 async function main() {
@@ -37,7 +42,8 @@ async function main() {
   console.log('✅ الأدوار تمت')
 
   const adminRole = await prisma.role.findUnique({ where: { key: 'admin' } })
-  const adminPass = await bcrypt.hash('Admin@123456', 12)
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin@123456'
+  const adminPass = await bcrypt.hash(adminPassword, 12)
 
   await prisma.user.upsert({
     where: { email: 'admin@hassan-land.com' },
@@ -61,7 +67,8 @@ async function main() {
     { email: 'viewer@hassan-land.com', role: 'authority_viewer', name: 'ممثل الجهة', branch: null },
   ]
 
-  const testPass = await bcrypt.hash('Test@123456', 12)
+  const testPassword = process.env.SEED_TEST_PASSWORD || 'Test@123456'
+  const testPass = await bcrypt.hash(testPassword, 12)
 
   for (const acc of testAccounts) {
     const role = await prisma.role.findUnique({ where: { key: acc.role } })
@@ -91,6 +98,9 @@ async function main() {
   console.log('  Surveyor:     surveyor@hassan-land.com / Test@123456')
   console.log('  Legal:        legal@hassan-land.com    / Test@123456')
   console.log('  Viewer:       viewer@hassan-land.com   / Test@123456')
+  console.log('')
+  console.log('⚠️  DEV ONLY: These credentials are for development.')
+  console.log('⚠️  For production, set SEED_ADMIN_PASSWORD and SEED_TEST_PASSWORD in env.')
 }
 
 main()
