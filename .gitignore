@@ -68,3 +68,4 @@ PROJECT_REPORT.txt
 .env*
 
 backup-*.zip
+backups/

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import PublicHeader from '@/components/PublicHeader'
 import PublicFooter from '@/components/PublicFooter'
-import ApplicationTimeline from '@/components/ApplicationTimeline'
+import ApplicationDetailsCard from '@/components/ApplicationDetailsCard'
 import { prisma } from '@/lib/prisma'
 import { formatDate } from '@/lib/utils'
 
@@ -57,9 +57,18 @@ export default async function TrackingDetailPage({
       trackingNumber: true,
       stage: true,
       status: true,
+      statusNote: true,
+      statusNoteManual: true,
       submittedAt: true,
       updatedAt: true,
       completedAt: true,
+      citizen: {
+        select: {
+          fullName: true,
+          nationalId: true,
+          phone: true,
+        },
+      },
       land: {
         select: {
           gov: true,
@@ -67,6 +76,17 @@ export default async function TrackingDetailPage({
           village: true,
           detail: true,
           totalFaddan: true,
+          authorityName: true,
+        },
+      },
+      payments: {
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          type: true,
+          amount: true,
+          receiptNumber: true,
+          paidAt: true,
         },
       },
       stages: {
@@ -91,10 +111,6 @@ export default async function TrackingDetailPage({
     <>
       <PublicHeader />
       <div className="max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-12">
-        <div className="mb-6">
-          <ApplicationTimeline stage={application.stage} status={application.status} />
-        </div>
-
         <Link
           href="/track"
           className="inline-flex items-center gap-2 text-[13px] font-bold text-black/60 hover:text-black mb-6"
@@ -102,21 +118,7 @@ export default async function TrackingDetailPage({
           <ArrowRight className="w-4 h-4" />
           بحث برقم آخر
         </Link>
-
-        <div className="rounded-[24px] bg-gradient-to-l from-[#0d7a3e] to-[#0a5c2f] text-white p-6 md:p-8">
-          <div className="text-[12px] opacity-85">رقم التتبع</div>
-          <div className="mt-1 text-[24px] md:text-[28px] font-mono font-extrabold tracking-wider" dir="ltr">
-            {application.trackingNumber}
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="px-3 py-1 rounded-full bg-white/15 text-[12px] font-bold">
-              {STAGE_LABELS[application.stage] || application.stage}
-            </span>
-            <span className={`px-3 py-1 rounded-full text-[12px] font-bold border ${STATUS_COLORS[application.status] || 'bg-white/15'}`}>
-              {STATUS_LABELS[application.status] || application.status}
-            </span>
-          </div>
-        </div>
+        <ApplicationDetailsCard application={application} />
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatCard

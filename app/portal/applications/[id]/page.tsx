@@ -14,7 +14,7 @@ import {
   UserPlus,
   XCircle,
 } from "lucide-react";
-import ApplicationTimeline from "@/components/ApplicationTimeline";
+import ApplicationDetailsCard from "@/components/ApplicationDetailsCard";
 
 const STAGES = [
   "SUBMITTED",
@@ -43,6 +43,8 @@ type Detail = {
   trackingNumber: string;
   stage: string;
   status: string;
+  statusNote: string | null;
+  statusNoteManual: boolean;
   submittedAt: string;
   updatedAt: string;
   citizen: { fullName: string; nationalId: string; phone: string };
@@ -52,7 +54,15 @@ type Detail = {
     village: string | null;
     detail: string | null;
     totalFaddan: number;
+    authorityName: string | null;
   } | null;
+  payments: Array<{
+    id: string;
+    type: string;
+    amount: number;
+    receiptNumber: string | null;
+    paidAt: string | null;
+  }>;
   documents: Array<{
     id: string;
     type: string;
@@ -195,28 +205,14 @@ export default function StaffApplicationDetailPage() {
   if (!app) return null;
   return (
     <div className="space-y-6">
-      <ApplicationTimeline stage={app.stage} status={app.status} />
       <Link
         href="/portal/applications"
-        className="inline-flex items-center gap-2 text-[13px] font-bold text-black/60"
+        className="inline-flex items-center gap-2 text-[13px] font-bold text-black/60 hover:text-black"
       >
         <ArrowRight className="w-4 h-4" />
         رجوع للطلبات
       </Link>
-      <div className="rounded-[20px] bg-gradient-to-l from-[#0d7a3e] to-[#0a5c2f] text-white p-6">
-        <div className="text-[11px] opacity-80">رقم التتبع</div>
-        <div className="mt-1 font-mono text-[24px] font-extrabold" dir="ltr">
-          {app.trackingNumber}
-        </div>
-        <div className="mt-3 flex gap-2">
-          <span className="px-3 py-1 rounded-full bg-white/15 font-bold">
-            {LABELS[app.stage] || app.stage}
-          </span>
-          <span className="px-3 py-1 rounded-full bg-white/15 font-bold">
-            {app.status}
-          </span>
-        </div>
-      </div>
+      <ApplicationDetailsCard application={app} />
       {error && (
         <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 p-3">
           {error}

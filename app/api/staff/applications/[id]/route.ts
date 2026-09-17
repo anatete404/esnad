@@ -36,6 +36,9 @@ export async function GET(
       assignedTo: { select: { id: true, fullName: true, email: true } },
       reviewedBy: { select: { id: true, fullName: true } },
       contract: true,
+      payments: {
+        orderBy: { createdAt: 'desc' },
+      },
     },
   })
 

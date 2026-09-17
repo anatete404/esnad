@@ -18,6 +18,10 @@ export const PERMISSIONS = {
   'users.manage': 'إدارة الموظفين',
   'settings.manage': 'إدارة الإعدادات',
   'audit.view': 'مراجعة سجلات التدقيق',
+  'payments.view': 'عرض الرسوم',
+  'payments.create': 'إضافة دفعة',
+  'payments.edit': 'تعديل دفعة',
+  'payments.delete': 'حذف دفعة',
 } as const
 
 export type Permission = keyof typeof PERMISSIONS
@@ -34,6 +38,7 @@ export const ROLES = {
       'applications.approve', 'applications.reject', 'applications.transfer',
       'documents.verify', 'surveys.schedule', 'contracts.create',
       'reports.view', 'reports.export',
+      'payments.view', 'payments.create', 'payments.edit', 'payments.delete',
     ] as Permission[],
   },
   supervisor: {
@@ -49,6 +54,7 @@ export const ROLES = {
     permissions: [
       'applications.view', 'applications.create', 'applications.edit',
       'documents.upload',
+      'payments.view', 'payments.create',
     ] as Permission[],
   },
   reviewer: {
@@ -76,6 +82,7 @@ export const ROLES = {
     permissions: [
       'applications.view', 'contracts.create', 'reports.view',
       'reports.export',
+      'payments.view', 'payments.create', 'payments.edit', 'payments.delete',
     ] as Permission[],
   },
   data_entry: {
