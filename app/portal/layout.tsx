@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Activity,
   Bell,
+  CalendarClock,
   Crown,
   FileText,
   Home,
@@ -33,6 +34,7 @@ const MENU = [
   { href: '/portal', label: 'لوحة التحكم', icon: Home, perm: null },
   { href: '/portal/owner', label: 'لوحة المالك', icon: Crown, perm: 'owner.dashboard' },
   { href: '/portal/my-activity', label: 'نشاطي', icon: Activity, perm: null },
+  { href: '/portal/attendance', label: 'الحضور', icon: CalendarClock, perm: null },
   { href: '/portal/applications', label: 'الطلبات', icon: FileText, perm: 'applications.view' },
   { href: '/portal/users', label: 'المستخدمون', icon: Users, perm: 'users.manage' },
   { href: '/portal/appeals', label: 'التظلمات', icon: MessageSquareWarning, perm: 'appeals.view' },

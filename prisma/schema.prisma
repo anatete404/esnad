@@ -49,6 +49,7 @@ model User {
   notifications   Notification[]
   reviewedAppeals Appeal[]       @relation("ReviewedAppeals")
   approvalSteps   ApprovalStep[] @relation("ApprovalSteps")
+  attendances     Attendance[]
 }
 
 model Citizen {
@@ -286,4 +287,22 @@ model ApprovalStep {
   @@unique([applicationId, level])
   @@index([applicationId])
   @@index([status])
+}
+
+model Attendance {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  checkInAt       DateTime
+  checkOutAt      DateTime?
+  durationMinutes Int?
+  notes           String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([checkInAt])
+  @@index([userId, checkInAt])
 }
