@@ -121,3 +121,102 @@ textarea:focus-visible {
 [dir="rtl"] ::-webkit-scrollbar-thumb:hover {
   background: rgba(13, 122, 62, 0.5);
 }
+
+/* ==========================================
+   UI-5B: Animations
+   ========================================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out both;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out both;
+}
+
+.stagger-children > * {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+
+.modal-overlay {
+  animation: fadeIn 0.2s ease-out both;
+}
+
+.modal-content {
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+.btn-press {
+  transition: transform 0.1s ease;
+}
+
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-slide-down,
+  .animate-scale-in,
+  .stagger-children > *,
+  .modal-overlay,
+  .modal-content {
+    animation: none !important;
+  }
+  .card-hover:hover,
+  .btn-press:active {
+    transform: none !important;
+  }
+}

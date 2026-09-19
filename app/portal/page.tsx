@@ -74,7 +74,7 @@ export default async function PortalDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
         {stats.map((s) => (
           <div key={s.label} className="rounded-[18px] bg-white border border-black/5 p-4">
             <div className="flex items-start justify-between">

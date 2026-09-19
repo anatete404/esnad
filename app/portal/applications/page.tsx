@@ -197,7 +197,7 @@ export default function ApplicationsListPage() {
         </button>
       </form>
 
-      <div className="rounded-[18px] bg-white border border-black/5 overflow-hidden">
+      <div className="rounded-[18px] bg-white border border-black/5 overflow-hidden stagger-children">
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="w-6 h-6 animate-spin text-[#0d7a3e]" />
