@@ -16,6 +16,7 @@ import {
   XCircle,
 } from "lucide-react";
 import ApplicationDetailsCard from "@/components/ApplicationDetailsCard";
+import ApprovalChainCard from "@/components/ApprovalChainCard";
 import ContractManager from "@/components/ContractManager";
 import HandoverModal from "@/components/HandoverModal";
 import MapLink from "@/components/MapLink";
@@ -118,6 +119,7 @@ export default function StaffApplicationDetailPage() {
   const [assignLoading, setAssignLoading] = useState(false);
   const [docLoading, setDocLoading] = useState<string | null>(null);
   const [showHandover, setShowHandover] = useState(false);
+  const [currentUserRole, setCurrentUserRole] = useState("");
 
   const load = async () => {
     const [res, staffRes] = await Promise.all([
@@ -141,6 +143,14 @@ export default function StaffApplicationDetailPage() {
   useEffect(() => {
     if (id) void load();
   }, [id]);
+  useEffect(() => {
+    fetch("/api/auth/staff/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.user?.roleKey) setCurrentUserRole(data.user.roleKey);
+      })
+      .catch(() => {});
+  }, []);
   const changeStage = async () => {
     if (!app || toStage === app.stage) return;
     setActionLoading(true);
@@ -397,6 +407,14 @@ export default function StaffApplicationDetailPage() {
             canEdit={canEdit}
             onRefresh={() => void load()}
           />
+          {app.stage === "CONTRACT" || app.stage === "COMMITTEE" || app.stage === "COMPLETED" ? (
+            <ApprovalChainCard
+              applicationId={app.id}
+              applicationStage={app.stage}
+              currentUserRole={currentUserRole}
+              onRefresh={() => void load()}
+            />
+          ) : null}
         </div>
       </div>
       {showHandover && (

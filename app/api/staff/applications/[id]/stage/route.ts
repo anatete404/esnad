@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { getUserSession } from '@/lib/auth'
 import { can } from '@/lib/rbac'
 import { logAudit } from '@/lib/audit'
+import { createApprovalSteps } from '@/lib/approvalWorkflow'
 
 const VALID_STAGES = [
   'SUBMITTED',
@@ -135,6 +136,10 @@ export async function POST(
 
       return updated
     })
+
+    if (data.toStage === 'CONTRACT') {
+      await createApprovalSteps(id, data.toStage)
+    }
 
     await logAudit({
       userId: session.id,
