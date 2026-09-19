@@ -41,6 +41,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const router = useRouter()
   const [user, setUser] = useState<StaffUser | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [pendingAppeals, setPendingAppeals] = useState(0)
 
   useEffect(() => {
     fetch('/api/auth/staff/me')
@@ -48,6 +49,22 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       .then((d) => setUser(d?.user ?? null))
       .catch(() => setUser(null))
   }, [pathname])
+
+  useEffect(() => {
+    const fetchPendingAppeals = async () => {
+      try {
+        const res = await fetch('/api/staff/appeals/stats')
+        if (res.ok) {
+          const data = await res.json()
+          setPendingAppeals(data.pending || 0)
+        }
+      } catch {}
+    }
+
+    fetchPendingAppeals()
+    const interval = setInterval(fetchPendingAppeals, 60000)
+    return () => clearInterval(interval)
+  }, [])
 
   const logout = async () => {
     await fetch('/api/auth/staff/logout', { method: 'POST' })
@@ -132,6 +149,11 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
                   }`}
                 >
                   <m.icon className="w-4 h-4" />
+                  {m.href === '/portal/appeals' && pendingAppeals > 0 && (
+                    <span className="ms-auto min-w-[20px] h-5 px-1.5 rounded-full bg-[#c89a2c] text-black text-[10px] font-extrabold grid place-items-center">
+                      {pendingAppeals > 99 ? '99+' : pendingAppeals}
+                    </span>
+                  )}
                   {m.label}
                 </Link>
               )
