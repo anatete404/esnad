@@ -1,0 +1,70 @@
+'use client'
+
+import { useState } from 'react'
+import { Download, Loader2 } from 'lucide-react'
+
+type Props = {
+  href: string
+  label?: string
+}
+
+export default function ExportButton({ href, label = 'تصدير Excel' }: Props) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleClick = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch(href)
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error || 'فشل التصدير')
+        return
+      }
+
+      const blob = await res.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+
+      const cd = res.headers.get('Content-Disposition') || ''
+      const match = cd.match(/filename="?([^\"]+)"?/) 
+      a.download = match ? match[1] : 'export.xlsx'
+
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+    } catch {
+      setError('تعذّر الاتصال بالسيرفر')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <button
+        onClick={handleClick}
+        disabled={loading}
+        className="h-10 px-5 rounded-full bg-[#0d7a3e] hover:bg-[#0a5c2f] text-white font-bold text-[12px] flex items-center gap-2 transition disabled:opacity-50"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            جارٍ التصدير...
+          </>
+        ) : (
+          <>
+            <Download className="w-4 h-4" />
+            {label}
+          </>
+        )}
+      </button>
+      {error && (
+        <div className="text-red-600 text-[10px] font-bold">{error}</div>
+      )}
+    </div>
+  )
+}
