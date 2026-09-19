@@ -136,7 +136,7 @@ export default function PublicHeader({ userName }: { userName?: string }) {
               منصة إسناد للتنمية الزراعية
             </div>
             <div className="text-[10px] font-semibold text-black/60">
-              منظومة تقنين أراضي الدولة
+              منظومة تقنين الأراضي
             </div>
           </div>
         </Link>
