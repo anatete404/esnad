@@ -36,6 +36,10 @@ export const PERMISSIONS = {
   'payments.create': 'إضافة دفعة',
   'payments.edit': 'تعديل دفعة',
   'payments.delete': 'حذف دفعة',
+  'appeals.view': 'عرض التظلمات',
+  'appeals.review': 'مراجعة التظلمات',
+  'appeals.approve': 'قبول تظلم',
+  'appeals.reject': 'رفض تظلم',
 } as const
 
 export type Permission = keyof typeof PERMISSIONS
@@ -53,6 +57,7 @@ export const ROLES = {
       'documents.verify', 'surveys.schedule', 'contracts.create',
       'reports.view', 'reports.export',
       'payments.view', 'payments.create', 'payments.edit', 'payments.delete',
+      'appeals.view', 'appeals.review', 'appeals.approve', 'appeals.reject',
     ] as Permission[],
   },
   supervisor: {
@@ -61,6 +66,7 @@ export const ROLES = {
       'applications.view', 'applications.edit', 'applications.assign',
       'applications.transfer', 'documents.verify', 'surveys.schedule',
       'reports.view',
+      'appeals.view', 'appeals.review',
     ] as Permission[],
   },
   receptionist: {
@@ -83,6 +89,7 @@ export const ROLES = {
     permissions: [
       'applications.view', 'applications.transfer', 'documents.verify',
       'contracts.create',
+      'appeals.view', 'appeals.review', 'appeals.approve', 'appeals.reject',
     ] as Permission[],
   },
   surveyor: {

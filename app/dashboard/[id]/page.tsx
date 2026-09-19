@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import PublicHeader from '@/components/PublicHeader'
 import PublicFooter from '@/components/PublicFooter'
+import CitizenAppealSection from '@/components/CitizenAppealSection'
 import { getCitizenSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { formatDate } from '@/lib/utils'
@@ -59,6 +60,7 @@ export default async function ApplicationDetailPage({
       documents: { orderBy: { uploadedAt: 'desc' } },
       stages: { orderBy: { createdAt: 'asc' } },
       contract: true,
+      appeal: true,
     },
   })
 
@@ -189,6 +191,13 @@ export default async function ApplicationDetailPage({
           </div>
           حالة الطلب تتحدث تلقائياً عند كل إجراء. لو محتاج إضافة مستندات أو الاستفسار،
           تواصل مع خدمة العملاء.
+        </div>
+        <div className="mt-6">
+          <CitizenAppealSection
+            applicationId={application.id}
+            applicationStatus={application.status}
+            initialAppeal={application.appeal}
+          />
         </div>
       </div>
       <PublicFooter />

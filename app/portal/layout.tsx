@@ -8,6 +8,7 @@ import {
   Home,
   LogOut,
   Menu,
+  MessageSquareWarning,
   Shield,
   TrendingUp,
   Users,
@@ -29,6 +30,7 @@ const MENU = [
   { href: '/portal', label: 'لوحة التحكم', icon: Home, perm: null },
   { href: '/portal/applications', label: 'الطلبات', icon: FileText, perm: 'applications.view' },
   { href: '/portal/users', label: 'المستخدمون', icon: Users, perm: 'users.manage' },
+  { href: '/portal/appeals', label: 'التظلمات', icon: MessageSquareWarning, perm: 'appeals.view' },
   { href: '/portal/reports', label: 'التقارير', icon: TrendingUp, perm: 'reports.view' },
   { href: '/portal/audit', label: 'سجل التدقيق', icon: Shield, perm: 'audit.view' },
 ]
