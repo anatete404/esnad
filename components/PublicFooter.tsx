@@ -20,6 +20,7 @@ export default function PublicFooter() {
             <a href="/register" className="hover:text-white">حساب جديد</a>
             <a href="/portal/login" className="hover:text-white">دخول الموظفين</a>
             <a href="/stats" className="hover:text-white">إحصائيات المنصة</a>
+            <a href="/contact" className="hover:text-white">تواصل معنا</a>
           </div>
         </div>
 

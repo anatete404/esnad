@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import ApplicationDetailsCard from "@/components/ApplicationDetailsCard";
 import ContractManager from "@/components/ContractManager";
+import MapLink from "@/components/MapLink";
 
 const STAGES = [
   "SUBMITTED",
@@ -56,6 +57,8 @@ type Detail = {
     detail: string | null;
     totalFaddan: number;
     authorityName: string | null;
+    lat: string | null;
+    lng: string | null;
   } | null;
   payments: Array<{
     id: string;
@@ -253,6 +256,7 @@ export default function StaffApplicationDetailPage() {
                 <Info label="المحافظة" value={app.land.gov || "—"} />
                 <Info label="المركز" value={app.land.center || "—"} />
                 <Info label="القرية" value={app.land.village || "—"} />
+                <MapLink lat={app.land.lat} lng={app.land.lng} />
                 <Info
                   label="المساحة"
                   value={`${app.land.totalFaddan.toFixed(4)} فدان`}
