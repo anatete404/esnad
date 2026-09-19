@@ -15,6 +15,7 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import CommandPalette from '@/components/CommandPalette'
 import NotificationBell from '@/components/NotificationBell'
 
 type StaffUser = {
@@ -158,6 +159,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           <div className="max-w-[1400px] mx-auto p-4 md:p-6">{children}</div>
         </main>
       </div>
+      <CommandPalette />
     </div>
   )
 }
