@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
+  ArrowRightLeft,
   CheckCircle2,
   Clock,
   FileText,
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 import ApplicationDetailsCard from "@/components/ApplicationDetailsCard";
 import ContractManager from "@/components/ContractManager";
+import HandoverModal from "@/components/HandoverModal";
 import MapLink from "@/components/MapLink";
 
 const STAGES = [
@@ -91,7 +93,7 @@ type Detail = {
     value: number;
     paymentPlan: string | null;
   } | null;
-  assignedTo: { fullName: string; email: string } | null;
+  assignedTo: { id: string; fullName: string; email: string } | null;
 };
 type Staff = {
   id: string;
@@ -115,6 +117,7 @@ export default function StaffApplicationDetailPage() {
   const [selectedStaff, setSelectedStaff] = useState("");
   const [assignLoading, setAssignLoading] = useState(false);
   const [docLoading, setDocLoading] = useState<string | null>(null);
+  const [showHandover, setShowHandover] = useState(false);
 
   const load = async () => {
     const [res, staffRes] = await Promise.all([
@@ -378,6 +381,13 @@ export default function StaffApplicationDetailPage() {
                 </button>
               )}
             </div>
+            <button
+              onClick={() => setShowHandover(true)}
+              className="w-full h-10 mt-3 rounded-full border border-[#0d7a3e]/30 hover:border-[#0d7a3e] hover:bg-[#f0faf4] text-[#0d7a3e] font-bold text-[12px] flex items-center justify-center gap-2 transition"
+            >
+              <ArrowRightLeft className="w-3.5 h-3.5" />
+              تسليم المهمة لموظف آخر
+            </button>
           </div>
           <ContractManager
             applicationId={app.id}
@@ -389,6 +399,18 @@ export default function StaffApplicationDetailPage() {
           />
         </div>
       </div>
+      {showHandover && (
+        <HandoverModal
+          applicationId={app.id}
+          currentAssigneeId={app.assignedTo?.id || null}
+          onClose={() => setShowHandover(false)}
+          onSuccess={() => {
+            setShowHandover(false);
+            setSuccess("تم تسليم المهمة بنجاح");
+            void load();
+          }}
+        />
+      )}
     </div>
   );
 }
