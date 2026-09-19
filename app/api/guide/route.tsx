@@ -1,16 +1,5 @@
 import { NextResponse } from 'next/server'
-import { renderToBuffer } from '@react-pdf/renderer'
-import { UserGuidePdf } from '@/lib/userGuidePdf'
 
 export async function GET() {
-  const pdfBuffer = await renderToBuffer(<UserGuidePdf />)
-
-  return new NextResponse(new Uint8Array(pdfBuffer), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': 'attachment; filename="esnad-user-guide.pdf"',
-      'Cache-Control': 'public, max-age=86400',
-    },
-  })
+  return NextResponse.redirect(new URL('/guide', process.env.NEXT_PUBLIC_SITE_URL || 'https://hassan-platform.vercel.app'))
 }

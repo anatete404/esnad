@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import {
+  BookOpen,
   Building2,
-  Download,
   FileText,
   Layers,
   Search,
@@ -102,13 +102,13 @@ export default async function HomePage() {
                 <Search className="h-4 w-4 text-[#0d7a3e]" />
                 متابعة طلب
               </Link>
-              <a
-                href="/api/guide"
+              <Link
+                href="/guide"
                 className="flex h-12 items-center gap-2 rounded-full border border-black/10 bg-white px-7 text-[14px] font-bold transition hover:border-[#0d7a3e]"
               >
-                <Download className="h-4 w-4 text-[#0d7a3e]" />
+                <BookOpen className="h-4 w-4 text-[#0d7a3e]" />
                 دليل المستخدم
-              </a>
+              </Link>
             </div>
 
             <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4 stagger-children">
