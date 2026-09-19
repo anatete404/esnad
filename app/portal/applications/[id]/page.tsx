@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import ApplicationDetailsCard from "@/components/ApplicationDetailsCard";
 import ApprovalChainCard from "@/components/ApprovalChainCard";
+import ApplicationCommentsCard from "@/components/ApplicationCommentsCard";
 import ContractManager from "@/components/ContractManager";
 import HandoverModal from "@/components/HandoverModal";
 import MapLink from "@/components/MapLink";
@@ -120,6 +121,7 @@ export default function StaffApplicationDetailPage() {
   const [docLoading, setDocLoading] = useState<string | null>(null);
   const [showHandover, setShowHandover] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState("");
+  const [currentUserId, setCurrentUserId] = useState("");
 
   const load = async () => {
     const [res, staffRes] = await Promise.all([
@@ -147,6 +149,7 @@ export default function StaffApplicationDetailPage() {
     fetch("/api/auth/staff/me")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
+        if (data?.user?.id) setCurrentUserId(data.user.id);
         if (data?.user?.roleKey) setCurrentUserRole(data.user.roleKey);
       })
       .catch(() => {});
@@ -415,6 +418,10 @@ export default function StaffApplicationDetailPage() {
               onRefresh={() => void load()}
             />
           ) : null}
+          <ApplicationCommentsCard
+            applicationId={app.id}
+            currentUserId={currentUserId}
+          />
         </div>
       </div>
       {showHandover && (

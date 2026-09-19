@@ -36,20 +36,21 @@ model User {
   lastLoginAt  DateTime?
   createdAt    DateTime  @default(now())
 
-  roleId          String
-  role            Role           @relation(fields: [roleId], references: [id])
-  branchId        String?
-  branch          Branch?        @relation(fields: [branchId], references: [id])
-  assignedApps    Application[]  @relation("AssignedTo")
-  reviewedApps    Application[]  @relation("ReviewedBy")
-  documents       Document[]
-  stageHistory    StageHistory[]
-  surveys         Survey[]
-  auditLogs       AuditLog[]
-  notifications   Notification[]
-  reviewedAppeals Appeal[]       @relation("ReviewedAppeals")
-  approvalSteps   ApprovalStep[] @relation("ApprovalSteps")
-  attendances     Attendance[]
+  roleId           String
+  role             Role                 @relation(fields: [roleId], references: [id])
+  branchId         String?
+  branch           Branch?              @relation(fields: [branchId], references: [id])
+  assignedApps     Application[]        @relation("AssignedTo")
+  reviewedApps     Application[]        @relation("ReviewedBy")
+  documents        Document[]
+  stageHistory     StageHistory[]
+  surveys          Survey[]
+  auditLogs        AuditLog[]
+  notifications    Notification[]
+  reviewedAppeals  Appeal[]             @relation("ReviewedAppeals")
+  approvalSteps    ApprovalStep[]       @relation("ApprovalSteps")
+  attendances      Attendance[]
+  authoredComments ApplicationComment[] @relation("AuthoredComments")
 }
 
 model Citizen {
@@ -109,6 +110,7 @@ model Application {
   payments      Payment[]
   appeal        Appeal?
   approvalSteps ApprovalStep[]
+  comments      ApplicationComment[]
 }
 
 model Land {
@@ -305,4 +307,23 @@ model Attendance {
   @@index([userId])
   @@index([checkInAt])
   @@index([userId, checkInAt])
+}
+
+model ApplicationComment {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User   @relation("AuthoredComments", fields: [authorId], references: [id])
+
+  content      String
+  mentionedIds String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([applicationId])
+  @@index([authorId])
+  @@index([createdAt])
 }
