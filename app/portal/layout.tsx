@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Activity,
   Bell,
+  Crown,
   FileText,
   Home,
   LogOut,
@@ -30,6 +31,7 @@ type StaffUser = {
 
 const MENU = [
   { href: '/portal', label: 'لوحة التحكم', icon: Home, perm: null },
+  { href: '/portal/owner', label: 'لوحة المالك', icon: Crown, perm: 'owner.dashboard' },
   { href: '/portal/my-activity', label: 'نشاطي', icon: Activity, perm: null },
   { href: '/portal/applications', label: 'الطلبات', icon: FileText, perm: 'applications.view' },
   { href: '/portal/users', label: 'المستخدمون', icon: Users, perm: 'users.manage' },
@@ -80,6 +82,9 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   }
 
   const visibleMenu = MENU.filter((m) => {
+    if (m.href === '/portal/owner') {
+      return user?.roleKey === 'admin' || user?.roleKey === 'branch_manager'
+    }
     if (!m.perm) return true
     return user?.permissions.includes(m.perm)
   })
