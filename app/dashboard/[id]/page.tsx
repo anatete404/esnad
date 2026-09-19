@@ -5,6 +5,7 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
+  Download,
   FileText,
   MapPin,
   Ruler,
@@ -77,6 +78,16 @@ export default async function ApplicationDetailPage({
           <ArrowRight className="w-4 h-4" />
           رجوع لملفاتي
         </Link>
+
+        <a
+          href={`/api/citizen/applications/${application.id}/pdf`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 h-10 px-5 rounded-full bg-[#0d7a3e] hover:bg-[#0a5c2f] text-white font-bold text-[12px] transition"
+        >
+          <Download className="w-4 h-4" />
+          تحميل ملف الطلب (PDF)
+        </a>
 
         <div className="rounded-[24px] bg-gradient-to-l from-[#0d7a3e] to-[#0a5c2f] text-white p-6 md:p-8">
           <div className="text-[12px] opacity-85">رقم التتبع</div>

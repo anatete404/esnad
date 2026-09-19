@@ -7,9 +7,11 @@ import {
   Clock,
   FileText,
   MapPin,
+  QrCode,
   Ruler,
   ShieldCheck,
 } from 'lucide-react'
+import QRCodeDisplay from '@/components/QRCodeDisplay'
 import PublicHeader from '@/components/PublicHeader'
 import PublicFooter from '@/components/PublicFooter'
 import ApplicationDetailsCard from '@/components/ApplicationDetailsCard'
@@ -209,6 +211,24 @@ export default async function TrackingDetailPage({
             تنبيه
           </div>
           هذا الرقم للاستعلام فقط. القرار النهائي على الطلب يصدر من الجهة المختصة.
+        </div>
+
+        <div className="mt-6 rounded-[20px] bg-white border border-black/5 p-5">
+          <h3 className="font-extrabold text-[14px] flex items-center gap-2 mb-4">
+            <QrCode className="w-4 h-4 text-[#0d7a3e]" />
+            رمز التتبع السريع
+          </h3>
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <QRCodeDisplay
+              value={`https://hassan-platform.vercel.app/track/${application.trackingNumber}`}
+              label="امسح لمتابعة الطلب"
+              downloadFileName={`qr-${application.trackingNumber}.png`}
+            />
+            <div className="flex-1 text-[12px] leading-7 text-black/65">
+              يمكنك مسح هذا الرمز بكاميرا الهاتف لمتابعة حالة الطلب مباشرة، أو حفظه ومشاركته مع من تريد.
+              الرمز يشير إلى رابط التتبع الرسمي.
+            </div>
+          </div>
         </div>
       </div>
       <PublicFooter />
