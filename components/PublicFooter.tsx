@@ -19,6 +19,7 @@ export default function PublicFooter() {
             <a href="/track" className="hover:text-white">متابعة طلب</a>
             <a href="/register" className="hover:text-white">حساب جديد</a>
             <a href="/portal/login" className="hover:text-white">دخول الموظفين</a>
+            <a href="/stats" className="hover:text-white">إحصائيات المنصة</a>
           </div>
         </div>
 
