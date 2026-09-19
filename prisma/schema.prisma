@@ -48,6 +48,7 @@ model User {
   auditLogs       AuditLog[]
   notifications   Notification[]
   reviewedAppeals Appeal[]       @relation("ReviewedAppeals")
+  approvalSteps   ApprovalStep[] @relation("ApprovalSteps")
 }
 
 model Citizen {
@@ -106,6 +107,7 @@ model Application {
   notifications Notification[]
   payments      Payment[]
   appeal        Appeal?
+  approvalSteps ApprovalStep[]
 }
 
 model Land {
@@ -261,4 +263,27 @@ model Appeal {
 
   @@index([status])
   @@index([citizenId])
+}
+
+model ApprovalStep {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  level        Int
+  roleRequired String
+  title        String
+
+  status       String    @default("PENDING")
+  approvedById String?
+  approvedBy   User?     @relation("ApprovalSteps", fields: [approvedById], references: [id])
+  approvedAt   DateTime?
+  notes        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([applicationId, level])
+  @@index([applicationId])
+  @@index([status])
 }
