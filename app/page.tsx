@@ -13,7 +13,9 @@ import {
 } from 'lucide-react'
 import HomeFaq from '@/components/HomeFaq'
 import AnimatedCounter from '@/components/AnimatedCounter'
+import AreaCalculator from '@/components/AreaCalculator'
 import LiveStatus from '@/components/LiveStatus'
+import ProcessTimeline from '@/components/ProcessTimeline'
 import PublicFooter from '@/components/PublicFooter'
 import PublicHeader from '@/components/PublicHeader'
 import WhatsAppButton from '@/components/WhatsAppButton'
@@ -146,6 +148,12 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* 7-Stage Timeline */}
+      <ProcessTimeline />
+
+      {/* Area Calculator */}
+      <AreaCalculator />
 
       <section className="mx-auto max-w-[1280px] px-4 py-12 md:px-6">
         <h2 className="text-center text-[22px] font-extrabold md:text-[28px]">
