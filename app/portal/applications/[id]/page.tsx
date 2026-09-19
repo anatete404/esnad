@@ -79,6 +79,14 @@ type Detail = {
     createdAt: string;
     user: { fullName: string } | null;
   }>;
+  contract: {
+    id: string;
+    contractNo: string;
+    createdAt: string;
+    signedAt: string | null;
+    value: number;
+    paymentPlan: string | null;
+  } | null;
   assignedTo: { fullName: string; email: string } | null;
 };
 type Staff = {
@@ -366,6 +374,24 @@ export default function StaffApplicationDetailPage() {
               )}
             </div>
           </div>
+          {app.contract && (
+            <div className="rounded-[18px] bg-white border border-black/5 p-5">
+              <h3 className="font-extrabold text-[14px]">العقد</h3>
+              <div className="mt-3 space-y-2 text-[12px] text-black/70">
+                <div>رقم العقد: <span className="font-bold">{app.contract.contractNo}</span></div>
+                <div>القيمة: <span className="font-bold">{app.contract.value.toLocaleString('en-US')} جنيه</span></div>
+                <div>تاريخ التوقيع: <span className="font-bold">{app.contract.signedAt ? new Date(app.contract.signedAt).toLocaleString('ar-EG') : 'قيد الانتظار'}</span></div>
+              </div>
+              <a
+                href={`/api/staff/contracts/${app.contract.id}/pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-2 h-9 px-4 rounded-full bg-[#0d7a3e] text-white text-[12px] font-bold hover:bg-[#0a5c2f] transition"
+              >
+                تحميل العقد PDF
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>
