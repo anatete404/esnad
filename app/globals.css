@@ -43,3 +43,81 @@ textarea.input {
   background: rgba(13, 122, 62, 0.4);
   border-radius: 99px;
 }
+
+/* ==========================================
+   A.4: UI Enhancements
+   ========================================== */
+
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+*:focus-visible {
+  outline: 2px solid var(--brand-green);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@media print {
+  header, nav, aside, footer,
+  .no-print,
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .print-page-break {
+    page-break-after: always;
+  }
+
+  main {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+}
+
+[dir="rtl"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[dir="rtl"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[dir="rtl"] ::-webkit-scrollbar-thumb {
+  background: rgba(13, 122, 62, 0.3);
+  border-radius: 99px;
+}
+
+[dir="rtl"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(13, 122, 62, 0.5);
+}

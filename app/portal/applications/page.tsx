@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import Breadcrumbs from '@/components/Breadcrumbs'
 import {
   CheckSquare,
   Eye,
@@ -151,6 +152,7 @@ export default function ApplicationsListPage() {
 
   return (
     <div className="space-y-6 pb-24">
+      <Breadcrumbs items={[{ label: 'الطلبات' }]} />
       <div>
         <h1 className="text-[22px] font-extrabold">الطلبات</h1>
         <p className="text-[12px] text-black/55 mt-1">
