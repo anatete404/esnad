@@ -1,12 +1,17 @@
 import Link from 'next/link'
 import {
+  Building2,
   FileText,
+  Layers,
   Search,
   Shield,
+  ShieldCheck,
   TrendingUp,
   Users,
+  Users2,
   Zap,
 } from 'lucide-react'
+import HomeFaq from '@/components/HomeFaq'
 import PublicFooter from '@/components/PublicFooter'
 import PublicHeader from '@/components/PublicHeader'
 import { getCitizenSession } from '@/lib/auth'
@@ -24,11 +29,17 @@ export default async function HomePage() {
     userName = citizen?.fullName
   }
 
+  const [totalApplications, totalCitizens, completedApplications] = await Promise.all([
+    prisma.application.count(),
+    prisma.citizen.count(),
+    prisma.application.count({ where: { status: 'COMPLETED' } }),
+  ])
+
   const stats = [
-    { icon: FileText, label: 'طلب مقدم', value: '+12,000' },
-    { icon: Users, label: 'مواطن مسجل', value: '+8,500' },
-    { icon: TrendingUp, label: 'ملف منجز', value: '+6,200' },
-    { icon: Shield, label: 'رضا المتعاملين', value: '94%' },
+    { icon: FileText, label: 'طلب مقدم', value: totalApplications.toLocaleString('ar-EG') },
+    { icon: Users, label: 'مواطن مسجل', value: totalCitizens.toLocaleString('ar-EG') },
+    { icon: TrendingUp, label: 'ملف منجز', value: completedApplications.toLocaleString('ar-EG') },
+    { icon: Shield, label: 'دقة البيانات', value: '100%' },
   ]
 
   const steps = [
@@ -44,7 +55,7 @@ export default async function HomePage() {
 
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0d7a3e]/8 to-transparent" />
-        <div className="mx-auto grid max-w-[1280px] items-center gap-10 px-4 pb-12 pt-12 md:px-6 md:pt-20 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="mx-auto grid max-w-[1280px] items-center gap-10 px-4 pb-12 pt-12 md:px-6 md:pt-20 lg:grid-cols-[1.15fr_0.85fr] animate-fade-in">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-3 py-1.5 text-[11px] font-bold shadow-sm">
               <span className="h-2 w-2 rounded-full bg-[#0d7a3e] animate-pulse" />
@@ -84,7 +95,7 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4 stagger-children">
               {stats.map((s) => (
                 <div
                   key={s.label}
@@ -175,6 +186,39 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* Trust / Partners */}
+      <section className="mx-auto max-w-[1280px] px-4 py-12 md:px-6 md:py-16">
+        <div className="text-center mb-8">
+          <div className="text-[11px] font-bold text-black/50 tracking-widest">TRUSTED BY</div>
+          <h2 className="mt-3 text-[20px] md:text-[22px] font-extrabold">
+            نعمل وفق معايير مؤسسية
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 stagger-children">
+          {[
+            { icon: Building2, title: 'سجل تجاري', value: '157574' },
+            { icon: Layers, title: 'سنوات الخبرة', value: '+22 سنة' },
+            { icon: ShieldCheck, title: 'حماية البيانات', value: 'مشفّرة' },
+            { icon: Users2, title: 'فريق متخصص', value: '11 دور' },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="rounded-[16px] bg-white border border-black/5 p-5 text-center card-hover"
+            >
+              <div className="w-12 h-12 rounded-[12px] bg-[#0d7a3e]/10 grid place-items-center mx-auto">
+                <item.icon className="w-5 h-5 text-[#0d7a3e]" />
+              </div>
+              <div className="mt-3 text-[18px] font-extrabold text-[#0d7a3e]">{item.value}</div>
+              <div className="text-[11px] text-black/55 font-bold mt-1">{item.title}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <HomeFaq />
 
       <PublicFooter />
     </>
