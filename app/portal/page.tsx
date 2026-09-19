@@ -8,6 +8,7 @@ import {
   Users,
 } from 'lucide-react'
 import { redirect } from 'next/navigation'
+import MyTasksCard from '@/components/MyTasksCard'
 import { getUserSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { can, scopeWhere } from '@/lib/rbac'
@@ -72,6 +73,8 @@ export default async function PortalDashboard() {
           </div>
         </div>
       </div>
+
+      <MyTasksCard />
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">

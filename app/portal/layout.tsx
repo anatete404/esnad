@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
+  Activity,
   Bell,
   FileText,
   Home,
@@ -29,6 +30,7 @@ type StaffUser = {
 
 const MENU = [
   { href: '/portal', label: 'لوحة التحكم', icon: Home, perm: null },
+  { href: '/portal/my-activity', label: 'نشاطي', icon: Activity, perm: null },
   { href: '/portal/applications', label: 'الطلبات', icon: FileText, perm: 'applications.view' },
   { href: '/portal/users', label: 'المستخدمون', icon: Users, perm: 'users.manage' },
   { href: '/portal/appeals', label: 'التظلمات', icon: MessageSquareWarning, perm: 'appeals.view' },
