@@ -12,8 +12,11 @@ import {
   Zap,
 } from 'lucide-react'
 import HomeFaq from '@/components/HomeFaq'
+import AnimatedCounter from '@/components/AnimatedCounter'
+import LiveStatus from '@/components/LiveStatus'
 import PublicFooter from '@/components/PublicFooter'
 import PublicHeader from '@/components/PublicHeader'
+import WhatsAppButton from '@/components/WhatsAppButton'
 import { getCitizenSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
@@ -36,10 +39,10 @@ export default async function HomePage() {
   ])
 
   const stats = [
-    { icon: FileText, label: 'طلب مقدم', value: totalApplications.toLocaleString('ar-EG') },
-    { icon: Users, label: 'مواطن مسجل', value: totalCitizens.toLocaleString('ar-EG') },
-    { icon: TrendingUp, label: 'ملف منجز', value: completedApplications.toLocaleString('ar-EG') },
-    { icon: Shield, label: 'دقة البيانات', value: '100%' },
+    { icon: FileText, label: 'طلب مقدم', numericValue: totalApplications, suffix: '' },
+    { icon: Users, label: 'مواطن مسجل', numericValue: totalCitizens, suffix: '' },
+    { icon: TrendingUp, label: 'ملف منجز', numericValue: completedApplications, suffix: '' },
+    { icon: Shield, label: 'دقة البيانات', numericValue: 100, suffix: '%' },
   ]
 
   const steps = [
@@ -57,12 +60,15 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0d7a3e]/8 to-transparent" />
         <div className="mx-auto grid max-w-[1280px] items-center gap-10 px-4 pb-12 pt-12 md:px-6 md:pt-20 lg:grid-cols-[1.15fr_0.85fr] animate-fade-in">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-3 py-1.5 text-[11px] font-bold shadow-sm">
-              <span className="h-2 w-2 rounded-full bg-[#0d7a3e] animate-pulse" />
-              منصة رسمية • إسناد للتنمية الزراعية
-              <span className="rounded-full bg-[#c89a2c]/20 px-2 py-0.5 text-[#8a6a1f]">
-                س.ت 157574
-              </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-3 py-1.5 text-[11px] font-bold shadow-sm">
+                <span className="h-2 w-2 rounded-full bg-[#0d7a3e] animate-pulse" />
+                منصة رسمية • إسناد للتنمية الزراعية
+                <span className="rounded-full bg-[#c89a2c]/20 px-2 py-0.5 text-[#8a6a1f]">
+                  س.ت 157574
+                </span>
+              </div>
+              <LiveStatus />
             </div>
 
             <h1 className="mt-5 text-[28px] font-extrabold leading-[1.15] tracking-tight md:text-[44px]">
@@ -99,10 +105,12 @@ export default async function HomePage() {
               {stats.map((s) => (
                 <div
                   key={s.label}
-                  className="rounded-[16px] border border-black/5 bg-white p-3.5 shadow-sm"
+                  className="rounded-[16px] border border-black/5 bg-white p-3.5 shadow-sm card-hover"
                 >
                   <s.icon className="h-5 w-5 text-[#0d7a3e]" />
-                  <div className="mt-2 text-[17px] font-extrabold">{s.value}</div>
+                  <div className="mt-2 text-[17px] font-extrabold">
+                    <AnimatedCounter end={s.numericValue ?? 0} suffix={s.suffix ?? ''} />
+                  </div>
                   <div className="text-[11px] font-semibold text-black/55">{s.label}</div>
                 </div>
               ))}
@@ -221,6 +229,7 @@ export default async function HomePage() {
       <HomeFaq />
 
       <PublicFooter />
+      <WhatsAppButton />
     </>
   )
 }
