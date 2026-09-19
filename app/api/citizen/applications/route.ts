@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { getCitizenSession } from '@/lib/auth'
 import { generateTrackingNumber, calcFaddan } from '@/lib/utils'
 import { logAudit } from '@/lib/audit'
+import { sendEmail, applicationReceivedEmail } from '@/lib/email'
 
 const landSchema = z.object({
   gov: z.string().min(2, 'المحافظة مطلوبة'),
@@ -143,6 +144,21 @@ export async function POST(req: Request) {
         totalFaddan,
       },
     })
+
+    // Send email to citizen (non-blocking)
+    const citizenForEmail = await prisma.citizen.findUnique({
+      where: { id: session.id },
+      select: { email: true, fullName: true },
+    })
+    if (citizenForEmail?.email) {
+      const { subject, html } = applicationReceivedEmail({
+        fullName: citizenForEmail.fullName,
+        trackingNumber,
+      })
+      sendEmail({ to: citizenForEmail.email, subject, html }).catch((err) => {
+        console.error('[application-create] email failed:', err)
+      })
+    }
 
     return NextResponse.json({
       success: true,

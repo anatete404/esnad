@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { COOKIES, createCitizenToken, hashPassword } from '@/lib/auth'
 import { logAudit } from '@/lib/audit'
+import { sendEmail, welcomeEmail } from '@/lib/email'
 
 const schema = z.object({
   fullName: z.string().min(3, 'الاسم قصير جدًا'),
@@ -70,6 +71,14 @@ export async function POST(req: Request) {
       entityId: citizen.id,
       newValue: { nationalId: citizen.nationalId, fullName: citizen.fullName },
     })
+
+    // Send welcome email (non-blocking, silent fail)
+    if (citizen.email) {
+      const { subject, html } = welcomeEmail(citizen.fullName)
+      sendEmail({ to: citizen.email, subject, html }).catch((err) => {
+        console.error('[register] welcome email failed:', err)
+      })
+    }
 
     return NextResponse.json({
       success: true,
