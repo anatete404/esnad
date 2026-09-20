@@ -1,16 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { Download, Loader2 } from 'lucide-react'
+import { FileSpreadsheet, FileText, Loader2 } from 'lucide-react'
 
 type Props = {
   href: string
   label?: string
+  variant?: 'excel' | 'csv'
 }
 
-export default function ExportButton({ href, label = 'تصدير Excel' }: Props) {
+export default function ExportButton({ href, label = 'تصدير Excel', variant = 'excel' }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const Icon = variant === 'csv' ? FileText : FileSpreadsheet
 
   const handleClick = async () => {
     setLoading(true)
@@ -48,7 +50,7 @@ export default function ExportButton({ href, label = 'تصدير Excel' }: Props
       <button
         onClick={handleClick}
         disabled={loading}
-        className="h-10 px-5 rounded-full bg-[#0d7a3e] hover:bg-[#0a5c2f] text-white font-bold text-[12px] flex items-center gap-2 transition disabled:opacity-50"
+        className={`h-10 px-5 rounded-full text-white font-bold text-[12px] flex items-center gap-2 transition disabled:opacity-50 ${variant === 'csv' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#0d7a3e] hover:bg-[#0a5c2f]'}`}
       >
         {loading ? (
           <>
@@ -57,7 +59,7 @@ export default function ExportButton({ href, label = 'تصدير Excel' }: Props
           </>
         ) : (
           <>
-            <Download className="w-4 h-4" />
+            <Icon className="w-4 h-4" />
             {label}
           </>
         )}
