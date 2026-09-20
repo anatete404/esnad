@@ -11,19 +11,26 @@ export default function LoginPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [nationalId, setNationalId] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
     setError('')
+
+    const trimmedIdentifier = identifier.trim()
+    if (!/^\d{14}$/.test(trimmedIdentifier) && !trimmedIdentifier.includes('@')) {
+      setError('اكتب رقمًا قوميًا من 14 رقمًا أو بريدًا إلكترونيًا صحيحًا')
+      return
+    }
+
     setLoading(true)
 
     try {
       const res = await fetch('/api/auth/citizen/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nationalId, password }),
+        body: JSON.stringify({ identifier: trimmedIdentifier, password }),
       })
       const data = await res.json()
 
@@ -50,7 +57,7 @@ export default function LoginPage() {
             <LogIn className="h-6 w-6 text-[#0d7a3e]" />
           </div>
           <h1 className="mt-4 text-[22px] font-extrabold">تسجيل الدخول</h1>
-          <p className="mt-1 text-[12px] text-black/60">ادخل بالرقم القومي وكلمة السر</p>
+          <p className="mt-1 text-[12px] text-black/60">ادخل بالرقم القومي أو البريد الإلكتروني وكلمة السر</p>
 
           <form onSubmit={submit} className="mt-6 space-y-4">
             {error && (
@@ -60,13 +67,13 @@ export default function LoginPage() {
             )}
 
             <label className="block">
-              <div className="mb-1.5 text-[11px] font-bold text-black/70">الرقم القومي</div>
+              <div className="mb-1.5 text-[11px] font-bold text-black/70">الرقم القومي أو البريد الإلكتروني</div>
               <input
-                className="input tracking-widest"
-                value={nationalId}
-                onChange={(event) =>
-                  setNationalId(event.target.value.replace(/\D/g, '').slice(0, 14))
-                }
+                type="text"
+                className="input"
+                value={identifier}
+                onChange={(event) => setIdentifier(event.target.value)}
+                placeholder="أدخل الرقم القومي أو البريد الإلكتروني"
                 required
               />
             </label>
