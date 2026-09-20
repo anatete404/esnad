@@ -3,30 +3,36 @@
 type Props = {
   stage: string
   status: string
+  stages?: Array<{ toStage: string; createdAt: string | Date }>
 }
 
-const VISUAL_STEPS = [
-  { num: 1, label: 'المراجعة', stages: ['SUBMITTED', 'INITIAL_REVIEW'] },
-  { num: 2, label: 'سداد رسوم المعاينة', stages: ['DOCS_REVIEW'] },
-  { num: 3, label: 'المعاينة والتسعير', stages: ['SURVEY', 'PRICING'] },
-  { num: 4, label: 'التعاقد', stages: ['COMMITTEE', 'CONTRACT', 'COMPLETED'] },
+const STAGES = [
+  { num: 1, key: 'SUBMITTED', label: 'تم التقديم' },
+  { num: 2, key: 'INITIAL_REVIEW', label: 'مراجعة أولية' },
+  { num: 3, key: 'DOCS_REVIEW', label: 'فحص المستندات' },
+  { num: 4, key: 'SURVEY', label: 'معاينة ميدانية' },
+  { num: 5, key: 'PRICING', label: 'تسعير' },
+  { num: 6, key: 'COMMITTEE', label: 'عرض على اللجنة' },
+  { num: 7, key: 'CONTRACT', label: 'تعاقد' },
+  { num: 8, key: 'COMPLETED', label: 'منجز' },
+  { num: 9, key: 'REJECTED', label: 'مرفوض' },
 ]
 
-function getVisualStep(stage: string): number {
-  for (const s of VISUAL_STEPS) {
-    if (s.stages.includes(stage)) return s.num
-  }
-  return 1
-}
-
-export default function ApplicationTimeline({ stage, status }: Props) {
+export default function ApplicationTimeline({ stage, status, stages = [] }: Props) {
   const isRejected = status === 'REJECTED' || stage === 'REJECTED'
-  const currentStep = isRejected ? 0 : getVisualStep(stage)
+  const currentIndex = Math.max(0, STAGES.findIndex((item) => item.key === stage))
+  const rejectedFromIndex = [...stages]
+    .reverse()
+    .map((entry) => STAGES.findIndex((item) => item.key === entry.toStage))
+    .find((index) => index >= 0 && STAGES[index]?.key !== 'REJECTED') ?? -1
 
-  const getState = (num: number): 'completed' | 'current' | 'future' | 'rejected' => {
-    if (isRejected) return 'rejected'
-    if (currentStep > num) return 'completed'
-    if (currentStep === num) return 'current'
+  const getState = (index: number): 'completed' | 'current' | 'future' | 'rejected' => {
+    if (isRejected) {
+      if (STAGES[index]?.key === 'REJECTED') return 'rejected'
+      return index <= rejectedFromIndex ? 'completed' : 'future'
+    }
+    if (currentIndex > index) return 'completed'
+    if (currentIndex === index) return 'current'
     return 'future'
   }
 
@@ -61,17 +67,17 @@ export default function ApplicationTimeline({ stage, status }: Props) {
     <div className="w-full bg-white rounded-[20px] border border-black/5 p-5 md:p-6 shadow-sm">
       <div className="flex items-start gap-2 md:gap-3" dir="rtl">
         {/* بداية */}
-        <div className="px-3 py-1.5 rounded-lg bg-[#0d7a3e] text-white text-[11px] md:text-[12px] font-bold shrink-0 mt-[6px] md:mt-[14px]">
+        <div className="shrink-0 rounded-lg bg-[#0d7a3e] px-2 py-1.5 text-[10px] font-bold text-white md:px-3 md:text-[12px]">
           بداية
         </div>
 
         {/* Steps */}
-        <div className="flex items-start flex-1 min-w-0">
-          {VISUAL_STEPS.map((step, i) => {
-            const state = getState(step.num)
+        <div className="flex min-w-max flex-1 items-start">
+          {STAGES.map((step, i) => {
+            const state = getState(i)
             const c = colors[state]
 
-            const prevState = i > 0 ? getState(VISUAL_STEPS[i - 1].num) : null
+            const prevState = i > 0 ? getState(i - 1) : null
             const lineBg =
               prevState === 'completed'
                 ? 'bg-[#0d7a3e]'
@@ -82,24 +88,24 @@ export default function ApplicationTimeline({ stage, status }: Props) {
                     : 'bg-black/10'
 
             return (
-              <div key={step.num} className="flex items-start flex-1 min-w-0">
+              <div key={step.key} className="flex min-w-[58px] items-start md:min-w-[84px]">
                 {i > 0 && (
                   <div
-                    className={`flex-1 h-1 rounded-full mt-[18px] md:mt-[26px] transition-colors ${lineBg}`}
+                    className={`mt-[14px] h-0.5 w-3 rounded-full transition-colors lg:mt-[18px] lg:h-1 lg:w-6 ${lineBg}`}
                   />
                 )}
                 <div className="flex flex-col items-center shrink-0">
                   <div
-                    className={`w-10 h-10 md:w-14 md:h-14 rounded-full border-2 ${c.border} ${c.bg} grid place-items-center shadow-sm`}
+                    className={`grid h-7 w-7 place-items-center rounded-full border-2 shadow-sm md:h-10 md:w-10 ${c.border} ${c.bg}`}
                   >
                     <span
-                      className={`text-[14px] md:text-[18px] font-extrabold ${c.text}`}
+                      className={`text-[10px] font-extrabold md:text-xs ${c.text}`}
                     >
                       {step.num}
                     </span>
                   </div>
                   <div
-                    className={`mt-1.5 md:mt-2 min-h-[36px] md:min-h-[44px] text-[9px] md:text-[11px] font-bold text-center max-w-[68px] md:max-w-[110px] leading-tight ${c.label}`}
+                    className={`mt-1 min-h-[30px] max-w-[52px] text-center text-[8px] font-bold leading-tight md:mt-2 md:text-xs ${c.label}`}
                   >
                     {step.label}
                   </div>
@@ -110,7 +116,7 @@ export default function ApplicationTimeline({ stage, status }: Props) {
         </div>
 
         {/* نهاية */}
-        <div className="px-3 py-1.5 rounded-lg bg-[#f59e0b] text-white text-[11px] md:text-[12px] font-bold shrink-0 mt-[6px] md:mt-[14px]">
+        <div className="shrink-0 rounded-lg bg-[#0d7a3e]/10 px-2 py-1.5 text-[10px] font-bold text-[#0d7a3e] md:px-3 md:text-[12px]">
           نهاية
         </div>
       </div>

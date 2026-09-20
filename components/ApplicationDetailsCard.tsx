@@ -41,6 +41,7 @@ type Props = {
       gov: string | null
     } | null
     payments: Payment[]
+    stages?: Array<{ toStage: string; createdAt: Date | string }>
   }
   applicationId?: string
   canEdit?: boolean
@@ -82,6 +83,7 @@ export default function ApplicationDetailsCard({
       <ApplicationTimeline
         stage={application.stage}
         status={application.status}
+        stages={application.stages}
       />
 
       {/* 2) بيانات مقدم الطلب (صاحب الشأن) */}
