@@ -21,6 +21,9 @@ export default function PublicFooter() {
             <a href="/portal/login" className="hover:text-white">دخول الموظفين</a>
             <a href="/stats" className="hover:text-white">إحصائيات المنصة</a>
             <a href="/contact" className="hover:text-white">تواصل معنا</a>
+            <a href="/help" className="hover:text-white">مركز المساعدة</a>
+            <a href="/legal/privacy" className="hover:text-white">سياسة الخصوصية</a>
+            <a href="/legal/terms" className="hover:text-white">شروط الاستخدام</a>
           </div>
         </div>
 
