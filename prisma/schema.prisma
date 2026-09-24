@@ -35,6 +35,9 @@ model User {
   isActive     Boolean   @default(true)
   lastLoginAt  DateTime?
   createdAt    DateTime  @default(now())
+  nationalId        String?   @unique
+  terminatedAt      DateTime?
+  terminationReason String?
 
   roleId           String
   role             Role                 @relation(fields: [roleId], references: [id])
