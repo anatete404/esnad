@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import {
   BookOpen,
-  Building2,
   FileText,
   Layers,
   Search,
@@ -66,10 +65,7 @@ export default async function HomePage() {
             <div className="flex flex-wrap items-center gap-2">
               <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-3 py-1.5 text-[11px] font-bold shadow-sm">
                 <span className="h-2 w-2 rounded-full bg-[#0d7a3e] animate-pulse" />
-                منصة رسمية • إسناد للتنمية الزراعية
-                <span className="rounded-full bg-[#c89a2c]/20 px-2 py-0.5 text-[#8a6a1f]">
-                  س.ت 157574
-                </span>
+                منصة إسناد للاعتمادات والخدمات الإدارية
               </div>
               <LiveStatus />
             </div>
@@ -220,9 +216,8 @@ export default async function HomePage() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 stagger-children">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 stagger-children">
           {[
-            { icon: Building2, title: 'سجل تجاري', value: '157574' },
             { icon: Layers, title: 'سنوات الخبرة', value: '+22 سنة' },
             { icon: ShieldCheck, title: 'حماية البيانات', value: 'مشفّرة' },
             { icon: Users2, title: 'فريق متخصص', value: '11 دور' },
