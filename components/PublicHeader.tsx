@@ -154,9 +154,6 @@ export default function PublicHeader({ userName }: { userName?: string }) {
           <Link href="/guide" className="rounded-full px-3 py-2 transition hover:bg-black/5">
             دليل المستخدم
           </Link>
-          <Link href="/whats-new" className="rounded-full px-3 py-2 transition hover:bg-black/5">
-            آخر التحديثات
-          </Link>
           {userName && (
             <Link href="/dashboard" className="rounded-full px-3 py-2 transition hover:bg-black/5">
               ملفاتي
@@ -218,9 +215,6 @@ export default function PublicHeader({ userName }: { userName?: string }) {
           </Link>
           <Link href="/guide" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-xl hover:bg-black/5 font-semibold text-[14px]">
             دليل المستخدم
-          </Link>
-          <Link href="/whats-new" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-xl hover:bg-black/5 font-semibold text-[14px]">
-            آخر التحديثات
           </Link>
           {userName ? (
             <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="block px-3 py-2.5 rounded-xl hover:bg-black/5 font-semibold text-[14px]">

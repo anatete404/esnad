@@ -22,7 +22,6 @@ export default function PublicFooter() {
             <a href="/stats" className="hover:text-white">إحصائيات المنصة</a>
             <a href="/contact" className="hover:text-white">تواصل معنا</a>
             <a href="/help" className="hover:text-white">مركز المساعدة</a>
-            <a href="/whats-new" className="hover:text-white">آخر التحديثات</a>
             <a href="/legal/privacy" className="hover:text-white">سياسة الخصوصية</a>
             <a href="/legal/terms" className="hover:text-white">شروط الاستخدام</a>
           </div>
