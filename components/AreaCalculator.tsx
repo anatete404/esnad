@@ -87,14 +87,14 @@ export default function AreaCalculator() {
           </div>
           <div className="text-center">
             <div className="text-[36px] md:text-[42px] font-extrabold leading-none">
-              {totalMeters.toFixed(2)}
+              {(Math.round(totalMeters * 100) / 100).toFixed(2)}
             </div>
             <div className="mt-2 text-[14px] opacity-90">متر</div>
           </div>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center text-[11px]">
             <div className="rounded-lg bg-white/10 p-2">
               <div className="opacity-70">بالمتر</div>
-              <div className="mt-0.5 font-extrabold">{totalMeters.toFixed(2)}</div>
+              <div className="mt-0.5 font-extrabold">{(Math.round(totalMeters * 100) / 100).toFixed(2)}</div>
             </div>
             <div className="rounded-lg bg-white/10 p-2">
               <div className="opacity-70">بالقيراط</div>
