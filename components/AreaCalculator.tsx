@@ -12,9 +12,7 @@ export default function AreaCalculator() {
   const q = parseFloat(qirat) || 0
   const s = parseFloat(sahm) || 0
 
-  const totalFaddan = f + q / 24 + s / 576
-  const totalQirat = f * 24 + q + s / 24
-  const totalSahm = f * 576 + q * 24 + s
+  const totalMeters = f * 4200.83
 
   const isValid = f >= 0 && q >= 0 && q < 24 && s >= 0 && s < 576
 
@@ -89,22 +87,22 @@ export default function AreaCalculator() {
           </div>
           <div className="text-center">
             <div className="text-[36px] md:text-[42px] font-extrabold leading-none">
-              {totalFaddan.toFixed(4)}
+              {totalMeters.toFixed(2)}
             </div>
-            <div className="mt-2 text-[14px] opacity-90">فدان</div>
+            <div className="mt-2 text-[14px] opacity-90">متر</div>
           </div>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center text-[11px]">
             <div className="rounded-lg bg-white/10 p-2">
-              <div className="opacity-70">بالفدان</div>
-              <div className="mt-0.5 font-extrabold">{totalFaddan.toFixed(2)}</div>
+              <div className="opacity-70">بالمتر</div>
+              <div className="mt-0.5 font-extrabold">{totalMeters.toFixed(2)}</div>
             </div>
             <div className="rounded-lg bg-white/10 p-2">
               <div className="opacity-70">بالقيراط</div>
-              <div className="mt-0.5 font-extrabold">{totalQirat.toFixed(2)}</div>
+              <div className="mt-0.5 font-extrabold">{q}</div>
             </div>
             <div className="rounded-lg bg-white/10 p-2">
               <div className="opacity-70">بالسهم</div>
-              <div className="mt-0.5 font-extrabold">{totalSahm.toFixed(0)}</div>
+              <div className="mt-0.5 font-extrabold">{s}</div>
             </div>
           </div>
         </div>
