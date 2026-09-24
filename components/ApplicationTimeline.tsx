@@ -1,5 +1,7 @@
 'use client'
 
+import { Check, X } from 'lucide-react'
+
 type Props = {
   stage: string
   status: string
@@ -14,23 +16,23 @@ const STAGES = [
   { num: 5, key: 'PRICING', label: 'تسعير' },
   { num: 6, key: 'COMMITTEE', label: 'عرض على اللجنة' },
   { num: 7, key: 'CONTRACT', label: 'تعاقد' },
-  { num: 8, key: 'COMPLETED', label: 'منجز' },
-  { num: 9, key: 'REJECTED', label: 'مرفوض' },
 ]
 
 export default function ApplicationTimeline({ stage, status, stages = [] }: Props) {
+  const isCompleted = status === 'COMPLETED' || stage === 'COMPLETED'
   const isRejected = status === 'REJECTED' || stage === 'REJECTED'
-  const currentIndex = Math.max(0, STAGES.findIndex((item) => item.key === stage))
-  const rejectedFromIndex = [...stages]
+  const lastNaturalStageIndex = [...stages]
     .reverse()
     .map((entry) => STAGES.findIndex((item) => item.key === entry.toStage))
-    .find((index) => index >= 0 && STAGES[index]?.key !== 'REJECTED') ?? -1
+    .find((index) => index >= 0) ?? 0
+  const currentIndex = isCompleted
+    ? STAGES.length
+    : isRejected
+      ? lastNaturalStageIndex
+      : Math.max(0, STAGES.findIndex((item) => item.key === stage))
 
-  const getState = (index: number): 'completed' | 'current' | 'future' | 'rejected' => {
-    if (isRejected) {
-      if (STAGES[index]?.key === 'REJECTED') return 'rejected'
-      return index <= rejectedFromIndex ? 'completed' : 'future'
-    }
+  const getState = (index: number): 'completed' | 'current' | 'future' => {
+    if (isCompleted || (isRejected && index <= currentIndex)) return 'completed'
     if (currentIndex > index) return 'completed'
     if (currentIndex === index) return 'current'
     return 'future'
@@ -55,12 +57,6 @@ export default function ApplicationTimeline({ stage, status, stages = [] }: Prop
       text: 'text-black/30',
       label: 'text-black/40',
     },
-    rejected: {
-      bg: 'bg-red-50',
-      border: 'border-red-300',
-      text: 'text-red-600',
-      label: 'text-red-600',
-    },
   }
 
   return (
@@ -83,9 +79,7 @@ export default function ApplicationTimeline({ stage, status, stages = [] }: Prop
                 ? 'bg-[#0d7a3e]'
                 : prevState === 'current'
                   ? 'bg-[#f59e0b]'
-                  : prevState === 'rejected'
-                    ? 'bg-red-500'
-                    : 'bg-black/10'
+                  : 'bg-black/10'
 
             return (
               <div key={step.key} className="flex min-w-[58px] items-start md:min-w-[84px]">
@@ -118,6 +112,22 @@ export default function ApplicationTimeline({ stage, status, stages = [] }: Prop
         {/* نهاية */}
         <div className="shrink-0 rounded-lg bg-[#0d7a3e]/10 px-2 py-1.5 text-[10px] font-bold text-[#0d7a3e] md:px-3 md:text-[12px]">
           نهاية
+        </div>
+      </div>
+
+      <div className="mt-6 flex justify-center gap-8">
+        <div className="flex flex-col items-center gap-2">
+          <div className={`flex h-14 w-14 items-center justify-center rounded-full transition ${isCompleted ? 'bg-[#0d7a3e] text-white' : 'bg-black/5 text-black/25 opacity-40'}`}>
+            <Check className="h-7 w-7" strokeWidth={3} />
+          </div>
+          <div className={`text-sm font-bold ${isCompleted ? 'text-[#0d7a3e]' : 'text-black/30'}`}>منجز</div>
+        </div>
+
+        <div className="flex flex-col items-center gap-2">
+          <div className={`flex h-14 w-14 items-center justify-center rounded-full transition ${isRejected ? 'bg-red-600 text-white' : 'bg-black/5 text-black/25 opacity-40'}`}>
+            <X className="h-7 w-7" strokeWidth={3} />
+          </div>
+          <div className={`text-sm font-bold ${isRejected ? 'text-red-600' : 'text-black/30'}`}>مرفوض</div>
         </div>
       </div>
 
