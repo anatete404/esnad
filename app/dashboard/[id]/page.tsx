@@ -154,47 +154,6 @@ export default async function ApplicationDetailPage({
           )}
         </Section>
 
-        <Section title="سجل المراحل" icon={CheckCircle2}>
-          {application.stages.length === 0 ? (
-            <div className="text-[13px] text-black/50 text-center py-4">
-              لا توجد مراحل مسجّلة بعد
-            </div>
-          ) : (
-            <div className="relative">
-              <div className="absolute right-[15px] top-3 bottom-3 w-px bg-gradient-to-b from-[#0d7a3e] via-[#0d7a3e]/30 to-transparent" />
-              <div className="space-y-5">
-                {application.stages.map((stage, i) => (
-                  <div key={stage.id} className="relative flex gap-4 items-start">
-                    <div className={`w-8 h-8 rounded-full grid place-items-center shrink-0 z-10 ${
-                      i === application.stages.length - 1
-                        ? 'bg-[#0d7a3e] text-white'
-                        : 'bg-white border-2 border-[#0d7a3e]/30 text-[#0d7a3e]'
-                    }`}>
-                      {i === application.stages.length - 1 ? (
-                        <CheckCircle2 className="w-4 h-4" />
-                      ) : (
-                        <span className="text-[11px] font-bold">{i + 1}</span>
-                      )}
-                    </div>
-                    <div className="flex-1 rounded-xl bg-[#f9fbf9] border border-black/5 p-3.5">
-                      <div className="font-bold text-[13px]">
-                        {STAGE_LABELS[stage.toStage] || stage.toStage}
-                      </div>
-                      <div className="mt-1 text-[12px] text-black/60">
-                        {stage.notes || stage.action}
-                      </div>
-                      <div className="mt-2 text-[11px] text-black/40 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {formatDate(stage.createdAt)}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </Section>
-
         <div className="mt-6 rounded-xl bg-blue-50 border border-blue-200 p-4 text-[12px] text-blue-900 leading-7">
           <div className="font-bold flex items-center gap-2 mb-1">
             <AlertCircle className="w-4 h-4" />

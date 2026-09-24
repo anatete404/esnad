@@ -7,7 +7,6 @@ import {
   ArrowRight,
   ArrowRightLeft,
   CheckCircle2,
-  Clock,
   FileText,
   Loader2,
   MapPin,
@@ -314,17 +313,6 @@ export default function StaffApplicationDetailPage() {
                 </div>
               ))
             )}
-          </Card>
-          <Card title="سجل المراحل" icon={Clock}>
-            {app.stages.map((s) => (
-              <div key={s.id} className="border-b p-3">
-                <b>{LABELS[s.toStage] || s.toStage}</b>
-                <div className="text-[11px] text-black/50">
-                  {s.notes || ""} •{" "}
-                  {new Date(s.createdAt).toLocaleString("ar-EG")}
-                </div>
-              </div>
-            ))}
           </Card>
         </div>
         <div className="space-y-4">
