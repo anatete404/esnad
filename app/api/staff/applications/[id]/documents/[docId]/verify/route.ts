@@ -26,11 +26,27 @@ export async function POST(
 
     const doc = await prisma.document.findFirst({
       where: { id: docId, applicationId: id },
-      select: { id: true, isVerified: true },
+      select: {
+        id: true,
+        isVerified: true,
+        application: { select: { branchId: true } },
+      },
     })
 
     if (!doc) {
       return NextResponse.json({ error: 'المستند غير موجود' }, { status: 404 })
+    }
+
+    if (
+      session.roleKey !== 'admin' &&
+      session.roleKey !== 'authority_viewer' &&
+      doc.application.branchId &&
+      doc.application.branchId !== session.branchId
+    ) {
+      return NextResponse.json(
+        { error: 'غير مصرح' },
+        { status: 403 },
+      )
     }
 
     const updated = await prisma.document.update({
@@ -50,6 +66,8 @@ export async function POST(
 
     await logAudit({
       userId: session.id,
+      branchId: doc.application.branchId,
+      actorBranchId: session.branchId,
       action: verify ? 'DOCUMENT_VERIFY' : 'DOCUMENT_UNVERIFY',
       entity: 'Document',
       entityId: docId,
