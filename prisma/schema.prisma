@@ -36,6 +36,7 @@ model User {
   lastLoginAt  DateTime?
   createdAt    DateTime  @default(now())
   nationalId        String?   @unique
+  employeeNumber    String?   @unique
   terminatedAt      DateTime?
   terminationReason String?
 
@@ -329,4 +330,10 @@ model ApplicationComment {
   @@index([applicationId])
   @@index([authorId])
   @@index([createdAt])
+}
+
+model EmployeeNumberSequence {
+  id        Int      @id @default(1)
+  nextValue Int      @default(1)
+  updatedAt DateTime @updatedAt
 }
