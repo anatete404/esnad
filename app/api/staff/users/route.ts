@@ -29,10 +29,10 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
   const canManageAll = can(session, 'users.manage')
   const canManageBranch = can(session, 'users.manage.branch')
-  if (!canManageAll && !canManageBranch && !can(session, 'applications.view')) return NextResponse.json({ error: 'لا تملك صلاحية' }, { status: 403 })
+  if (!canManageAll && !canManageBranch) return NextResponse.json({ error: 'لا تملك صلاحية' }, { status: 403 })
   if (canManageBranch && !canManageAll && !session.branchId) return NextResponse.json({ error: 'لا يوجد فرع مرتبط بحسابك' }, { status: 400 })
   const users = await prisma.user.findMany({
-    where: canManageAll || !canManageBranch ? undefined : { branchId: session.branchId },
+    where: canManageAll ? undefined : { branchId: session.branchId },
     select: { id: true, email: true, fullName: true, phone: true, nationalId: true, employeeNumber: true, isActive: true, terminatedAt: true, terminationReason: true, lastLoginAt: true, createdAt: true, role: { select: { key: true, nameAr: true } }, branch: { select: { id: true, name: true } } },
     orderBy: { createdAt: 'asc' },
   })
