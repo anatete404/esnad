@@ -58,6 +58,9 @@ export async function POST(
         applicationId: id,
         application: scopeWhere(session, 'BRANCH'),
       },
+      include: {
+        application: { select: { branchId: true } },
+      },
     })
 
     if (!step) {
@@ -96,6 +99,8 @@ export async function POST(
 
     await logAudit({
       userId: session.id,
+      branchId: step.application.branchId,
+      actorBranchId: session.branchId,
       action: data.decision === 'APPROVED' ? 'APPROVAL_APPROVE' : 'APPROVAL_REJECT',
       entity: 'ApprovalStep',
       entityId: data.stepId,
