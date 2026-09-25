@@ -110,6 +110,8 @@ export async function POST(
 
     await logAudit({
       userId: session.id,
+      branchId: application.branchId,
+      actorBranchId: session.branchId,
       action: 'PAYMENT_CREATE',
       entity: 'Payment',
       entityId: payment.id,

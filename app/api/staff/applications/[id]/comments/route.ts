@@ -137,6 +137,8 @@ export async function POST(
 
     await logAudit({
       userId: session.id,
+      branchId: application.branchId,
+      actorBranchId: session.branchId,
       action: 'COMMENT_CREATE',
       entity: 'ApplicationComment',
       entityId: comment.id,

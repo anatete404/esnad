@@ -56,6 +56,8 @@ export async function PATCH(
 
     await logAudit({
       userId: session.id,
+      branchId: application.branchId,
+      actorBranchId: session.branchId,
       action: 'LAND_AUTHORITY_UPDATE',
       entity: 'Land',
       entityId: updated.id,

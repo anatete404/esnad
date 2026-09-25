@@ -82,6 +82,8 @@ export async function POST(
 
     await logAudit({
       userId: session.id,
+      branchId: application.branchId,
+      actorBranchId: session.branchId,
       action: 'APPLICATION_ASSIGN',
       entity: 'Application',
       entityId: id,

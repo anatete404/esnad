@@ -62,6 +62,8 @@ export async function PATCH(
 
     await logAudit({
       userId: session.id,
+      branchId: application.branchId,
+      actorBranchId: session.branchId,
       action: 'APPLICATION_STATUS_NOTE_UPDATE',
       entity: 'Application',
       entityId: id,
