@@ -23,32 +23,6 @@ import {
 } from '@/lib/trackIdentity'
 import { formatDate } from '@/lib/utils'
 
-const STAGE_LABELS: Record<string, string> = {
-  SUBMITTED: 'تم التقديم',
-  INITIAL_REVIEW: 'مراجعة أولية',
-  DOCS_REVIEW: 'فحص المستندات',
-  SURVEY: 'معاينة ميدانية',
-  PRICING: 'تسعير',
-  COMMITTEE: 'عرض على اللجنة',
-  CONTRACT: 'تعاقد',
-  COMPLETED: 'منجز',
-  REJECTED: 'مرفوض',
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  ACTIVE: 'نشط',
-  ON_HOLD: 'معلّق',
-  COMPLETED: 'منجز',
-  REJECTED: 'مرفوض',
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-blue-50 text-blue-700 border-blue-200',
-  ON_HOLD: 'bg-amber-50 text-amber-800 border-amber-200',
-  COMPLETED: 'bg-green-50 text-green-700 border-green-200',
-  REJECTED: 'bg-red-50 text-red-700 border-red-200',
-}
-
 export default async function TrackingDetailPage({
   params,
 }: {
