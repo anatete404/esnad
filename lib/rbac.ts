@@ -146,11 +146,13 @@ export function scopeWhere(
   if (mode === 'ALL' || user.roleKey === 'admin' || user.roleKey === 'authority_viewer') {
     return {}
   }
-  if (mode === 'BRANCH' && user.branchId) {
-    return { branchId: user.branchId }
+  if (mode === 'BRANCH') {
+    return user.branchId
+      ? { branchId: user.branchId }
+      : { branchId: '__no_access__' }
   }
   if (mode === 'OWN') {
     return { assignedToId: user.id }
   }
-  return {}
+  return { branchId: '__no_access__' }
 }
