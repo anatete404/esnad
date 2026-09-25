@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUserSession } from '@/lib/auth'
-import { can } from '@/lib/rbac'
+import { can, scopeWhere } from '@/lib/rbac'
 
 export async function GET(
   _req: Request,
@@ -18,8 +18,11 @@ export async function GET(
 
   const { id } = await params
 
-  const application = await prisma.application.findUnique({
-    where: { id },
+  const application = await prisma.application.findFirst({
+    where: {
+      id,
+      ...scopeWhere(session, 'BRANCH'),
+    },
     include: {
       citizen: true,
       land: true,
@@ -44,16 +47,6 @@ export async function GET(
 
   if (!application) {
     return NextResponse.json({ error: 'الطلب غير موجود' }, { status: 404 })
-  }
-
-  // لو موظف في فرع، ما يقدرش يشوف طلبات فرع تاني
-  if (
-    session.roleKey !== 'admin' &&
-    session.roleKey !== 'authority_viewer' &&
-    application.branchId &&
-    application.branchId !== session.branchId
-  ) {
-    return NextResponse.json({ error: 'لا تملك صلاحية' }, { status: 403 })
   }
 
   return NextResponse.json({
