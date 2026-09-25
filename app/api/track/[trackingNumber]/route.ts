@@ -6,6 +6,7 @@ import {
   TRACK_IDENTITY_MAX_AGE,
   normalizePhone,
   createTrackIdentityToken,
+  verifyTrackIdentityToken,
 } from '@/lib/trackIdentity'
 
 export async function GET(
@@ -13,6 +14,17 @@ export async function GET(
   { params }: { params: Promise<{ trackingNumber: string }> }
 ) {
   const { trackingNumber } = await params
+  const cookieStore = await cookies()
+  const token = cookieStore.get(TRACK_IDENTITY_COOKIE)?.value
+
+  if (!token) {
+    return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+  }
+
+  const valid = await verifyTrackIdentityToken(token, trackingNumber)
+  if (!valid) {
+    return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+  }
 
   if (!trackingNumber || trackingNumber.length < 5) {
     return NextResponse.json({ error: 'رقم تتبع غير صالح' }, { status: 400 })
