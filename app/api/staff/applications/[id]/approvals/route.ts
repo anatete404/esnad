@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { getUserSession } from '@/lib/auth'
-import { can } from '@/lib/rbac'
+import { can, scopeWhere } from '@/lib/rbac'
 import { logAudit } from '@/lib/audit'
 
 export async function GET(
@@ -20,7 +20,10 @@ export async function GET(
   const { id } = await params
 
   const steps = await prisma.approvalStep.findMany({
-    where: { applicationId: id },
+    where: {
+      applicationId: id,
+      application: scopeWhere(session, 'BRANCH'),
+    },
     include: {
       approvedBy: { select: { id: true, fullName: true } },
     },
@@ -50,7 +53,11 @@ export async function POST(
   try {
     const data = schema.parse(await req.json())
     const step = await prisma.approvalStep.findFirst({
-      where: { id: data.stepId, applicationId: id },
+      where: {
+        id: data.stepId,
+        applicationId: id,
+        application: scopeWhere(session, 'BRANCH'),
+      },
     })
 
     if (!step) {
