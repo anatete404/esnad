@@ -18,7 +18,7 @@ export default function PublicFooter() {
           <div className="mt-3 grid grid-cols-2 gap-2 opacity-70">
             <a href="/track" className="hover:text-white">متابعة طلب</a>
             <a href="/register" className="hover:text-white">حساب جديد</a>
-            <a href="/portal/login" className="hover:text-white">دخول الموظفين</a>
+            <a href="/portal/login" className="hover:text-white">Users</a>
             <a href="/stats" className="hover:text-white">إحصائيات المنصة</a>
             <a href="/contact" className="hover:text-white">تواصل معنا</a>
             <a href="/help" className="hover:text-white">مركز المساعدة</a>

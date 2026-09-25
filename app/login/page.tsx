@@ -107,7 +107,7 @@ export default function LoginPage() {
             </div>
             <div>
               <Link href="/portal/login" className="text-black/40 hover:text-black">
-                دخول الموظفين ←
+                Users ←
               </Link>
             </div>
           </div>
