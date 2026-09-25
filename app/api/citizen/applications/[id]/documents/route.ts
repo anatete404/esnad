@@ -63,7 +63,7 @@ export async function POST(
 
   const application = await prisma.application.findFirst({
     where: { id, citizenId: session.id },
-    select: { id: true, status: true },
+    select: { id: true, status: true, branchId: true },
   })
 
   if (!application) {
@@ -133,6 +133,8 @@ export async function POST(
     })
 
     await logAudit({
+      branchId: application.branchId,
+      actorBranchId: null,
       action: 'DOCUMENT_UPLOAD',
       entity: 'Document',
       entityId: document.id,
