@@ -80,6 +80,8 @@ export async function POST(
 
     await logAudit({
       userId: session.id,
+      branchId: application.branchId,
+      actorBranchId: session.branchId,
       action: 'CONTRACT_CREATE',
       entity: 'Contract',
       entityId: contract.id,

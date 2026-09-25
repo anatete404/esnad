@@ -105,6 +105,8 @@ export async function POST(
 
     await logAudit({
       userId: session.id,
+      branchId: payment.application.branchId,
+      actorBranchId: session.branchId,
       action: 'PAYMENT_RECEIPT_IMAGE_UPLOAD',
       entity: 'Payment',
       entityId: paymentId,
