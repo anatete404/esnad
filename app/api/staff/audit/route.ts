@@ -20,7 +20,20 @@ export async function GET(req: Request) {
   const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
   const pageSize = Math.min(100, Math.max(20, parseInt(searchParams.get('pageSize') || '50')))
 
-  const where: Record<string, unknown> = {}
+  const branchWhere = session.roleKey === 'branch_manager' && session.branchId
+    ? {
+        OR: [
+          { branchId: session.branchId },
+          { actorBranchId: session.branchId },
+        ],
+      }
+    : session.roleKey === 'branch_manager'
+      ? { branchId: '__no_access__' }
+      : {}
+
+  const where: Record<string, unknown> = {
+    ...branchWhere,
+  }
   if (action) where.action = { contains: action }
   if (entity) where.entity = entity
   if (userId) where.userId = userId

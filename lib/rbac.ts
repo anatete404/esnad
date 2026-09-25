@@ -62,6 +62,7 @@ export const ROLES = {
       'users.manage.branch',
       'payments.view', 'payments.create', 'payments.edit', 'payments.delete',
       'appeals.view', 'appeals.review', 'appeals.approve', 'appeals.reject',
+      'audit.view',
     ] as Permission[],
   },
   supervisor: {
