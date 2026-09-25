@@ -6,9 +6,20 @@ import { Search, Loader2, Ticket } from 'lucide-react'
 import PublicHeader from '@/components/PublicHeader'
 import PublicFooter from '@/components/PublicFooter'
 
+const GOVS = [
+  'القاهرة', 'الجيزة', 'الفيوم', 'بني سويف', 'المنيا', 'أسيوط',
+  'سوهاج', 'قنا', 'الأقصر', 'أسوان', 'الوادي الجديد', 'مطروح',
+  'البحيرة', 'كفر الشيخ', 'الدقهلية', 'الشرقية', 'المنوفية',
+  'الغربية', 'دمياط', 'بورسعيد', 'الإسماعيلية', 'السويس',
+  'شمال سيناء', 'جنوب سيناء', 'البحر الأحمر',
+]
+
 export default function TrackPage() {
   const router = useRouter()
   const [trackingNumber, setTrackingNumber] = useState('')
+  const [nationalId, setNationalId] = useState('')
+  const [phone, setPhone] = useState('')
+  const [gov, setGov] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -21,18 +32,38 @@ export default function TrackPage() {
       setError('أدخل رقم تتبع صحيح')
       return
     }
+    if (!/^\d{14}$/.test(nationalId.trim())) {
+      setError('أدخل الرقم القومي المكوّن من 14 رقمًا')
+      return
+    }
+    if (phone.trim().length < 10) {
+      setError('أدخل رقم موبايل صحيح')
+      return
+    }
+    if (!gov) {
+      setError('اختر المحافظة')
+      return
+    }
 
     setLoading(true)
     try {
-      const res = await fetch(`/api/track/${encodeURIComponent(code)}`)
-      if (!res.ok) {
-        const data = await res.json()
+      const res = await fetch(`/api/track/${encodeURIComponent(code)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nationalId: nationalId.trim(),
+          phone: phone.trim(),
+          gov,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.ok) {
         setError(data.error || 'لا يوجد طلب بهذا الرقم')
         return
       }
       router.push(`/track/${encodeURIComponent(code)}`)
     } catch {
-      setError('تعذّر الاتصال بالسيرفر')
+      setError('حدث خطأ، حاول مرة أخرى')
     } finally {
       setLoading(false)
     }
@@ -53,12 +84,6 @@ export default function TrackPage() {
           </p>
 
           <form onSubmit={submit} className="mt-6 space-y-4">
-            {error && (
-              <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 text-[13px] font-semibold p-3">
-                {error}
-              </div>
-            )}
-
             <label className="block">
               <div className="text-[11px] font-bold text-black/70 mb-1.5">
                 رقم التتبع
@@ -75,6 +100,50 @@ export default function TrackPage() {
               </div>
             </label>
 
+            <label className="block">
+              <div className="text-[11px] font-bold text-black/70 mb-1.5">
+                الرقم القومي
+              </div>
+              <input
+                className="input font-mono tracking-wider"
+                value={nationalId}
+                onChange={(e) => setNationalId(e.target.value)}
+                placeholder="أدخل الرقم القومي المكوّن من 14 رقمًا"
+                maxLength={14}
+                dir="ltr"
+              />
+            </label>
+
+            <label className="block">
+              <div className="text-[11px] font-bold text-black/70 mb-1.5">
+                رقم الموبايل
+              </div>
+              <input
+                className="input"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="أدخل رقم الموبايل"
+                type="tel"
+                dir="ltr"
+              />
+            </label>
+
+            <label className="block">
+              <div className="text-[11px] font-bold text-black/70 mb-1.5">
+                المحافظة
+              </div>
+              <select
+                className="input"
+                value={gov}
+                onChange={(e) => setGov(e.target.value)}
+              >
+                <option value="">اختر المحافظة</option>
+                {GOVS.map((item) => (
+                  <option key={item} value={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+
             <button
               type="submit"
               disabled={loading}
@@ -82,7 +151,7 @@ export default function TrackPage() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> جارٍ البحث...
+                  <Loader2 className="w-4 h-4 animate-spin" /> جاري التحقق...
                 </>
               ) : (
                 <>
@@ -90,6 +159,12 @@ export default function TrackPage() {
                 </>
               )}
             </button>
+
+            {error && (
+              <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 text-[13px] font-semibold p-3">
+                {error}
+              </div>
+            )}
           </form>
 
           <div className="mt-6 rounded-xl bg-[#f0faf4] border border-[#0d7a3e]/20 p-3 text-[11px] text-[#0d5a2e] leading-6">
