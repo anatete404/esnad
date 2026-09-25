@@ -22,4 +22,61 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const updateData: Record<string, unknown> = { ...data }; delete updateData.roleKey; delete updateData.password; delete updateData.nationalId; delete updateData.terminatedAt; if (nationalId !== undefined) updateData.nationalId = nationalId; if (data.password) updateData.passwordHash = await hashPassword(data.password); if (data.roleKey) { if (!(data.roleKey in ROLES)) return NextResponse.json({ error: 'الدور غير صحيح' }, { status: 400 }); const role = await prisma.role.findUnique({ where: { key: data.roleKey } }); if (!role) return NextResponse.json({ error: 'الدور غير موجود' }, { status: 400 }); updateData.roleId = role.id } if (data.phone !== undefined) updateData.phone = data.phone || null; if (data.terminatedAt !== undefined) updateData.terminatedAt = data.terminatedAt ? new Date(data.terminatedAt) : null; if (data.isActive === true && target.terminatedAt) { updateData.terminatedAt = null; updateData.terminationReason = null } if (data.terminatedAt) updateData.isActive = false
   const user = await prisma.user.update({ where: { id }, data: updateData, select: { id: true, email: true, fullName: true, phone: true, nationalId: true, employeeNumber: true, isActive: true, terminatedAt: true, terminationReason: true, role: { select: { key: true, nameAr: true } }, branch: { select: { id: true, name: true } } } }); const action = data.terminatedAt ? 'USER_TERMINATE' : data.isActive === true && target.terminatedAt ? 'USER_REACTIVATE' : data.isActive === false ? 'USER_DEACTIVATE' : 'USER_UPDATE'; await logAudit({ userId: session.id, action, entity: 'User', entityId: id, oldValue: { isActive: target.isActive, nationalId: target.nationalId, terminatedAt: target.terminatedAt, terminationReason: target.terminationReason, employeeNumber: target.employeeNumber }, newValue: { isActive: user.isActive, nationalId: user.nationalId, terminatedAt: user.terminatedAt, terminationReason: user.terminationReason, employeeNumber: user.employeeNumber, ...data } }); return NextResponse.json({ success: true, user })
 }
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) { const session = await getUserSession(); if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 }); if (!can(session, 'users.manage')) return NextResponse.json({ error: 'لا تملك صلاحية' }, { status: 403 }); const id = (await params).id; if (id === session.id) return NextResponse.json({ error: 'لا يمكنك حذف حسابك الشخصي' }, { status: 400 }); const user = await prisma.user.findUnique({ where: { id }, include: { _count: { select: { assignedApps: true } } } }); if (!user) return NextResponse.json({ error: 'الموظف غير موجود' }, { status: 404 }); if (user._count.assignedApps > 0) return NextResponse.json({ error: `لا يمكن حذف الموظف - لديه ${user._count.assignedApps} طلب مسند إليه` }, { status: 400 }); await prisma.user.delete({ where: { id } }); await logAudit({ userId: session.id, action: 'USER_DELETE', entity: 'User', entityId: id }); return NextResponse.json({ success: true }) }
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getUserSession()
+  if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
+  if (!can(session, 'users.manage')) {
+    return NextResponse.json({ error: 'لا تملك صلاحية' }, { status: 403 })
+  }
+
+  const id = (await params).id
+  if (id === session.id) {
+    return NextResponse.json({ error: 'لا يمكنك حذف حسابك الشخصي' }, { status: 400 })
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      email: true,
+      fullName: true,
+      nationalId: true,
+      employeeNumber: true,
+      phone: true,
+      isActive: true,
+      terminatedAt: true,
+      terminationReason: true,
+      branchId: true,
+      role: { select: { key: true, nameAr: true } },
+      _count: { select: { assignedApps: true } },
+    },
+  })
+  if (!user) return NextResponse.json({ error: 'الموظف غير موجود' }, { status: 404 })
+  if (user._count.assignedApps > 0) {
+    return NextResponse.json(
+      { error: `لا يمكن حذف الموظف - لديه ${user._count.assignedApps} طلب مسند إليه` },
+      { status: 400 }
+    )
+  }
+
+  await prisma.user.delete({ where: { id } })
+  await logAudit({
+    userId: session.id,
+    action: 'USER_DELETE',
+    entity: 'User',
+    entityId: id,
+    oldValue: {
+      email: user.email,
+      fullName: user.fullName,
+      nationalId: user.nationalId,
+      employeeNumber: user.employeeNumber,
+      phone: user.phone,
+      isActive: user.isActive,
+      terminatedAt: user.terminatedAt,
+      terminationReason: user.terminationReason,
+      branchId: user.branchId,
+      roleKey: user.role.key,
+      roleName: user.role.nameAr,
+    },
+  })
+  return NextResponse.json({ success: true })
+}
