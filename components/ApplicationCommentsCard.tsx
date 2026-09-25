@@ -27,7 +27,6 @@ type Staff = {
   id: string
   fullName: string
   role: { nameAr: string; key: string }
-  isActive: boolean
 }
 
 type Props = {
@@ -55,15 +54,15 @@ export default function ApplicationCommentsCard({
     try {
       const [commentsResponse, staffResponse] = await Promise.all([
         fetch(`/api/staff/applications/${applicationId}/comments`),
-        fetch('/api/staff/users'),
+        fetch('/api/staff/users/selectable'),
       ])
       if (commentsResponse.ok) {
         const data = await commentsResponse.json()
         setComments(data.comments || [])
       }
       if (staffResponse.ok) {
-        const data = await staffResponse.json()
-        setStaff(data.users?.filter((user: Staff) => user.isActive) || [])
+        const users = await staffResponse.json()
+        setStaff(users)
       }
     } finally {
       setLoading(false)

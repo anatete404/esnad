@@ -14,7 +14,6 @@ type Staff = {
   id: string
   fullName: string
   role: { nameAr: string; key: string }
-  isActive: boolean
 }
 
 type Props = {
@@ -38,15 +37,13 @@ export default function HandoverModal({
   const [error, setError] = useState('')
 
   useEffect(() => {
-    fetch('/api/staff/users')
+    fetch('/api/staff/users/selectable')
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (d?.users) {
-          const active = d.users.filter(
-            (u: Staff) =>
-              u.isActive && u.role.key !== 'admin' && u.role.key !== 'authority_viewer',
-          )
-          setStaff(active)
+      .then((users) => {
+        if (users) {
+          setStaff(users.filter(
+            (u: Staff) => u.role.key !== 'admin' && u.role.key !== 'authority_viewer',
+          ))
         }
       })
       .catch(() => {})

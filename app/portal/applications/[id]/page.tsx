@@ -99,7 +99,6 @@ type Detail = {
 type Staff = {
   id: string;
   fullName: string;
-  email: string;
   role: { nameAr: string };
 };
 
@@ -125,7 +124,7 @@ export default function StaffApplicationDetailPage() {
   const load = async () => {
     const [res, staffRes] = await Promise.all([
       fetch(`/api/staff/applications/${id}`),
-      fetch("/api/staff/users"),
+      fetch("/api/staff/users/selectable"),
     ]);
     if (res.status === 404) {
       router.push("/portal/applications");
@@ -138,7 +137,7 @@ export default function StaffApplicationDetailPage() {
       setToStage(data.application.stage);
       setSelectedStaff(data.application.assignedTo?.id || "");
     }
-    if (staffRes.ok) setStaff((await staffRes.json()).users);
+    if (staffRes.ok) setStaff(await staffRes.json());
     setLoading(false);
   };
   useEffect(() => {

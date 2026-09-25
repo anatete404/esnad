@@ -38,7 +38,7 @@ type Row = {
   _count: { documents: number }
 }
 
-type Staff = { id: string; fullName: string; role: { nameAr: string } }
+type Staff = { id: string; fullName: string; role: { key: string; nameAr: string } }
 
 export default function ApplicationsListPage() {
   const [items, setItems] = useState<Row[]>([])
@@ -80,10 +80,10 @@ export default function ApplicationsListPage() {
 
   const loadStaff = async () => {
     try {
-      const res = await fetch('/api/staff/users')
+      const res = await fetch('/api/staff/users/selectable')
       if (res.ok) {
-        const data = await res.json()
-        setStaff(data.users.filter((u: Staff & { isActive: boolean; role: { key: string; nameAr: string } }) => u.isActive && u.role.key !== 'admin'))
+        const users = await res.json()
+        setStaff(users.filter((u: Staff) => u.role.key !== 'admin'))
       }
     } catch {}
   }
