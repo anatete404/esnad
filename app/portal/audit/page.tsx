@@ -170,31 +170,7 @@ export default function AuditLogPage() {
                       </div>
                     </div>
                   </div>
-                  {(log.oldValue || log.newValue) && (
-                    <button
-                      onClick={() =>
-                        setExpanded(expanded === log.id ? null : log.id)
-                      }
-                      className="text-[11px] font-bold text-[#0d7a3e]"
-                    >
-                      {expanded === log.id ? 'إخفاء' : 'التفاصيل'}
-                    </button>
-                  )}
                 </div>
-                {expanded === log.id && (
-                  <div className="mt-3 grid md:grid-cols-2 gap-3">
-                    <Value
-                      title="القيمة القديمة"
-                      value={log.oldValue}
-                      color="red"
-                    />
-                    <Value
-                      title="القيمة الجديدة"
-                      value={log.newValue}
-                      color="green"
-                    />
-                  </div>
-                )}
               </div>
             ))}
             {totalPages > 1 && (
@@ -219,33 +195,6 @@ export default function AuditLogPage() {
           </>
         )}
       </div>
-    </div>
-  )
-}
-function Value({
-  title,
-  value,
-  color,
-}: {
-  title: string
-  value: string | null
-  color: string
-}) {
-  if (!value) return null
-  let formatted = value
-  try {
-    formatted = JSON.stringify(JSON.parse(value), null, 2)
-  } catch {}
-  return (
-    <div
-      className={`rounded-xl bg-${color}-50/50 border border-${color}-100 p-3`}
-    >
-      <div className={`text-[10px] font-bold text-${color}-600 mb-1`}>
-        {title}
-      </div>
-      <pre className="text-[10px] whitespace-pre-wrap break-words font-mono">
-        {formatted}
-      </pre>
     </div>
   )
 }
