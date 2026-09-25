@@ -232,6 +232,7 @@ export async function GET() {
       totalThisMonth: await prisma.payment.count({
         where: {
           createdAt: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) },
+          ...(Object.keys(branchScope).length > 0 ? { application: scopeFilter } : {}),
         },
       }),
     }
