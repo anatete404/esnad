@@ -126,6 +126,8 @@ export async function POST(
 
     await logAudit({
       userId: session.id,
+      branchId: appeal.application.branchId,
+      actorBranchId: session.branchId,
       action: data.decision === 'APPROVED' ? 'APPEAL_APPROVE' : 'APPEAL_REJECT',
       entity: 'Appeal',
       entityId: id,

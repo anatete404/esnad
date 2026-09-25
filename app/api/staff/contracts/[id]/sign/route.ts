@@ -93,6 +93,8 @@ export async function POST(
 
   await logAudit({
     userId: session.id,
+    branchId: contract.application.branchId,
+    actorBranchId: session.branchId,
     action: 'CONTRACT_SIGN',
     entity: 'Contract',
     entityId: id,
