@@ -35,10 +35,25 @@ export async function PATCH(
 
     const existing = await prisma.payment.findFirst({
       where: { id: paymentId, applicationId: id },
+      include: {
+        application: { select: { branchId: true } },
+      },
     })
 
     if (!existing) {
       return NextResponse.json({ error: 'الدفعة غير موجودة' }, { status: 404 })
+    }
+
+    if (
+      session.roleKey !== 'admin' &&
+      session.roleKey !== 'authority_viewer' &&
+      existing.application.branchId &&
+      existing.application.branchId !== session.branchId
+    ) {
+      return NextResponse.json(
+        { error: 'غير مصرح' },
+        { status: 403 },
+      )
     }
 
     const updateData: Record<string, unknown> = {}
@@ -58,6 +73,8 @@ export async function PATCH(
 
     await logAudit({
       userId: session.id,
+      branchId: existing.application.branchId,
+      actorBranchId: session.branchId,
       action: 'PAYMENT_UPDATE',
       entity: 'Payment',
       entityId: paymentId,
@@ -95,16 +112,33 @@ export async function DELETE(
 
   const existing = await prisma.payment.findFirst({
     where: { id: paymentId, applicationId: id },
+    include: {
+      application: { select: { branchId: true } },
+    },
   })
 
   if (!existing) {
     return NextResponse.json({ error: 'الدفعة غير موجودة' }, { status: 404 })
   }
 
+  if (
+    session.roleKey !== 'admin' &&
+    session.roleKey !== 'authority_viewer' &&
+    existing.application.branchId &&
+    existing.application.branchId !== session.branchId
+  ) {
+    return NextResponse.json(
+      { error: 'غير مصرح' },
+      { status: 403 },
+    )
+  }
+
   await prisma.payment.delete({ where: { id: paymentId } })
 
   await logAudit({
     userId: session.id,
+    branchId: existing.application.branchId,
+    actorBranchId: session.branchId,
     action: 'PAYMENT_DELETE',
     entity: 'Payment',
     entityId: paymentId,
