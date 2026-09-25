@@ -145,6 +145,8 @@ export async function GET(req: Request) {
   const buffer = await workbook.xlsx.writeBuffer()
   await logAudit({
     userId: session.id,
+    branchId: canManageAll ? null : session.branchId,
+    actorBranchId: session.branchId,
     action: 'EXCEL_EXPORT_USERS',
     entity: 'User',
     newValue: { filters: { status: requestedStatus, q }, count: users.length },

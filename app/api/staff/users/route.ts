@@ -75,7 +75,7 @@ export async function POST(req: Request) {
       }
     }
     if (!user) throw new Error('User creation failed')
-    await logAudit({ userId: session.id, action: 'USER_CREATE', entity: 'User', entityId: user.id, newValue: { email: user.email, fullName: user.fullName, roleKey: data.roleKey, branchId: user.branch?.id, nationalId: user.nationalId, employeeNumber: user.employeeNumber } })
+    await logAudit({ userId: session.id, branchId: user.branch?.id ?? null, actorBranchId: session.branchId, action: 'USER_CREATE', entity: 'User', entityId: user.id, newValue: { email: user.email, fullName: user.fullName, roleKey: data.roleKey, branchId: user.branch?.id, nationalId: user.nationalId, employeeNumber: user.employeeNumber } })
     return NextResponse.json({ success: true, user }, { status: 201 })
   } catch (err) {
     if (err instanceof z.ZodError) return NextResponse.json({ error: err.issues[0]?.message || 'بيانات غير صحيحة' }, { status: 400 })
