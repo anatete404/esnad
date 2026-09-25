@@ -3,6 +3,8 @@ import { prisma } from './prisma'
 
 export async function logAudit(params: {
   userId?: string | null
+  branchId?: string | null
+  actorBranchId?: string | null
   action: string
   entity: string
   entityId?: string
@@ -15,6 +17,8 @@ export async function logAudit(params: {
     await prisma.auditLog.create({
       data: {
         userId: params.userId ?? null,
+        branchId: params.branchId ?? null,
+        actorBranchId: params.actorBranchId ?? null,
         action: params.action,
         entity: params.entity,
         entityId: params.entityId,
