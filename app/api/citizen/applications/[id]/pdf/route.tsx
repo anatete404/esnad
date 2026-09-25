@@ -84,6 +84,8 @@ export async function GET(
   const pdfBuffer = await renderToBuffer(<ApplicationFilePdf data={data} />)
 
   await logAudit({
+    branchId: application.branchId ?? null,
+    actorBranchId: null,
     action: 'APPLICATION_PDF_DOWNLOAD',
     entity: 'Application',
     entityId: id,

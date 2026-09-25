@@ -66,6 +66,8 @@ export async function POST(req: Request) {
     })
 
     await logAudit({
+      branchId: null,
+      actorBranchId: null,
       action: 'CITIZEN_REGISTER',
       entity: 'Citizen',
       entityId: citizen.id,

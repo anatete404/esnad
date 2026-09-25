@@ -135,6 +135,8 @@ export async function POST(req: Request) {
     })
 
     await logAudit({
+      branchId: application.branchId ?? null,
+      actorBranchId: null,
       action: 'APPLICATION_CREATE',
       entity: 'Application',
       entityId: application.id,
