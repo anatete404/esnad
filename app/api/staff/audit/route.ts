@@ -30,7 +30,7 @@ export async function GET(req: Request) {
     prisma.auditLog.findMany({
       where,
       include: {
-        user: { select: { id: true, fullName: true, email: true } },
+        user: { select: { id: true, fullName: true, email: true, employeeNumber: true } },
       },
       orderBy: { createdAt: 'desc' },
       skip: (page - 1) * pageSize,

@@ -26,6 +26,7 @@ type User = {
   email: string
   fullName: string
   phone: string | null
+  employeeNumber?: string | null
   nationalId?: string | null
   isActive: boolean
   terminatedAt?: string | null
@@ -139,7 +140,7 @@ export default function UsersManagementPage() {
     const query = q.toLowerCase()
     const matchesSearch =
       !query ||
-      `${u.fullName} ${u.email} ${u.phone || ''} ${u.nationalId || ''}`
+      `${u.fullName} ${u.email} ${u.phone || ''} ${u.employeeNumber || ''} ${u.nationalId || ''}`
         .toLowerCase()
         .includes(query)
     const matchesStatus =
@@ -224,6 +225,7 @@ export default function UsersManagementPage() {
                 <tr>
                   {[
                     'الاسم',
+                    'الرقم الوظيفي',
                     'الرقم القومي',
                     'البريد',
                     'الدور',
@@ -244,6 +246,9 @@ export default function UsersManagementPage() {
                     <td className="px-4 py-3 font-bold">
                       {u.fullName}
                       <div className="text-[10px] text-black/50">{u.phone}</div>
+                    </td>
+                    <td className="px-4 py-3 font-mono">
+                      {u.employeeNumber || '—'}
                     </td>
                     <td className="px-4 py-3 font-mono">
                       {u.nationalId || '—'}
