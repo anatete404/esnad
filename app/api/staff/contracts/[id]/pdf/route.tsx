@@ -67,6 +67,8 @@ export async function GET(
 
   await logAudit({
     userId: session.id,
+    branchId: contract.application.branchId,
+    actorBranchId: session.branchId,
     action: 'CONTRACT_PDF_DOWNLOAD',
     entity: 'Contract',
     entityId: id,

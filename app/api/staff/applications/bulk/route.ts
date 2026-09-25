@@ -85,6 +85,10 @@ export async function POST(req: Request) {
 
       await logAudit({
         userId: session.id,
+        branchId: Object.keys(scope).length > 0
+          ? (scope as { branchId: string }).branchId
+          : null,
+        actorBranchId: session.branchId,
         action: 'BULK_ASSIGN',
         entity: 'Application',
         newValue: { count: updated, assignedToId: data.assignedToId, ids: validIds },
@@ -129,6 +133,10 @@ export async function POST(req: Request) {
 
       await logAudit({
         userId: session.id,
+        branchId: Object.keys(scope).length > 0
+          ? (scope as { branchId: string }).branchId
+          : null,
+        actorBranchId: session.branchId,
         action: 'BULK_STAGE_CHANGE',
         entity: 'Application',
         newValue: { count: updated, toStage: data.toStage, ids: validIds },

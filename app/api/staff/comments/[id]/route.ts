@@ -15,7 +15,13 @@ export async function DELETE(
   const { id } = await params
   const comment = await prisma.applicationComment.findUnique({
     where: { id },
-    select: { id: true, authorId: true, applicationId: true, content: true },
+    select: {
+      id: true,
+      authorId: true,
+      applicationId: true,
+      content: true,
+      application: { select: { branchId: true } },
+    },
   })
 
   if (!comment) {
@@ -30,6 +36,8 @@ export async function DELETE(
 
   await logAudit({
     userId: session.id,
+    branchId: comment.application.branchId,
+    actorBranchId: session.branchId,
     action: 'COMMENT_DELETE',
     entity: 'ApplicationComment',
     entityId: id,

@@ -109,6 +109,10 @@ export async function GET() {
 
   await logAudit({
     userId: session.id,
+    branchId: Object.keys(branchScope).length > 0
+      ? (branchScope as { branchId: string }).branchId
+      : null,
+    actorBranchId: session.branchId,
     action: 'EXCEL_EXPORT_PAYMENTS',
     entity: 'Report',
     newValue: { count: payments.length, totalAmount },

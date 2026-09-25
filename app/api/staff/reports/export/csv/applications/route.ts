@@ -37,6 +37,7 @@ export async function GET(req: Request) {
   if (!session) {
     return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
   }
+  const branchScope = scopeWhere(session, 'BRANCH')
   if (!can(session, 'reports.view') && !can(session, 'applications.view')) {
     return NextResponse.json({ error: 'لا تملك صلاحية' }, { status: 403 })
   }
@@ -98,6 +99,10 @@ export async function GET(req: Request) {
 
   await logAudit({
     userId: session.id,
+    branchId: Object.keys(branchScope).length > 0
+      ? (branchScope as { branchId: string }).branchId
+      : null,
+    actorBranchId: session.branchId,
     action: 'CSV_EXPORT_APPLICATIONS',
     entity: 'Report',
     newValue: { count: applications.length, filters: { stage, status, q } },
