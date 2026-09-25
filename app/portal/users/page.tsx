@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import ExportButton from '@/components/ExportButton'
 import {
   Loader2,
   Pencil,
@@ -159,16 +160,22 @@ export default function UsersManagementPage() {
             {users.length} موظف في النظام
           </p>
         </div>
-        <button
-          onClick={() => {
-            setEditing(null)
-            setShowModal(true)
-          }}
-          className="h-11 px-6 rounded-full bg-[#0d7a3e] text-white font-bold flex items-center gap-2"
-        >
-          <UserPlus className="w-4 h-4" />
-          إضافة موظف
-        </button>
+        <div className="flex items-center gap-2">
+          <ExportButton
+            href={`/api/staff/users/export/excel?status=${filterStatus}&q=${encodeURIComponent(q)}`}
+            label="تصدير Excel"
+          />
+          <button
+            onClick={() => {
+              setEditing(null)
+              setShowModal(true)
+            }}
+            className="h-11 px-6 rounded-full bg-[#0d7a3e] text-white font-bold flex items-center gap-2"
+          >
+            <UserPlus className="w-4 h-4" />
+            إضافة موظف
+          </button>
+        </div>
       </div>
       {error && (
         <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 p-3">
