@@ -1,9 +1,28 @@
+import { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { getUserSession, hashPassword } from '@/lib/auth'
 import { can, ROLES } from '@/lib/rbac'
 import { logAudit } from '@/lib/audit'
+
+async function generateEmployeeNumber(tx: Prisma.TransactionClient): Promise<string> {
+  const sequence = await tx.employeeNumberSequence.findUnique({ where: { id: 1 } })
+  if (!sequence) throw new Error('EmployeeNumberSequence not initialized')
+
+  const employeeNumber = `ESNAD-EMP-${String(sequence.nextValue).padStart(4, '0')}`
+  await tx.employeeNumberSequence.update({
+    where: { id: 1 },
+    data: { nextValue: sequence.nextValue + 1 },
+  })
+  return employeeNumber
+}
+
+function isEmployeeNumberRetryable(error: unknown): boolean {
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError)) return false
+  if (error.code === 'P2034') return true
+  return error.code === 'P2002' && JSON.stringify(error.meta?.target).includes('employeeNumber')
+}
 
 export async function GET() {
   const session = await getUserSession()
@@ -14,7 +33,7 @@ export async function GET() {
   if (canManageBranch && !canManageAll && !session.branchId) return NextResponse.json({ error: 'لا يوجد فرع مرتبط بحسابك' }, { status: 400 })
   const users = await prisma.user.findMany({
     where: canManageAll || !canManageBranch ? undefined : { branchId: session.branchId },
-    select: { id: true, email: true, fullName: true, phone: true, nationalId: true, isActive: true, terminatedAt: true, terminationReason: true, lastLoginAt: true, createdAt: true, role: { select: { key: true, nameAr: true } }, branch: { select: { id: true, name: true } } },
+    select: { id: true, email: true, fullName: true, phone: true, nationalId: true, employeeNumber: true, isActive: true, terminatedAt: true, terminationReason: true, lastLoginAt: true, createdAt: true, role: { select: { key: true, nameAr: true } }, branch: { select: { id: true, name: true } } },
     orderBy: { createdAt: 'asc' },
   })
   return NextResponse.json({ users })
@@ -41,8 +60,22 @@ export async function POST(req: Request) {
     const role = await prisma.role.findUnique({ where: { key: data.roleKey } })
     if (!role) return NextResponse.json({ error: 'الدور غير موجود' }, { status: 400 })
     if (branchId && !(await prisma.branch.findUnique({ where: { id: branchId } }))) return NextResponse.json({ error: 'الفرع غير موجود' }, { status: 400 })
-    const user = await prisma.user.create({ data: { email: data.email.toLowerCase(), passwordHash: await hashPassword(data.password), fullName: data.fullName, phone: data.phone || null, nationalId, roleId: role.id, branchId }, select: { id: true, email: true, fullName: true, phone: true, nationalId: true, isActive: true, terminatedAt: true, terminationReason: true, role: { select: { key: true, nameAr: true } }, branch: { select: { id: true, name: true } } } })
-    await logAudit({ userId: session.id, action: 'USER_CREATE', entity: 'User', entityId: user.id, newValue: { email: user.email, fullName: user.fullName, roleKey: data.roleKey, branchId: user.branch?.id, nationalId: user.nationalId } })
+    const userData = { email: data.email.toLowerCase(), passwordHash: await hashPassword(data.password), fullName: data.fullName, phone: data.phone || null, nationalId, roleId: role.id, branchId }
+    const createUser = async () => prisma.$transaction(async (tx) => {
+      const employeeNumber = await generateEmployeeNumber(tx)
+      return tx.user.create({ data: { ...userData, employeeNumber }, select: { id: true, email: true, fullName: true, phone: true, nationalId: true, employeeNumber: true, isActive: true, terminatedAt: true, terminationReason: true, role: { select: { key: true, nameAr: true } }, branch: { select: { id: true, name: true } } } })
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable })
+    let user: Awaited<ReturnType<typeof createUser>> | undefined
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        user = await createUser()
+        break
+      } catch (error) {
+        if (!isEmployeeNumberRetryable(error) || attempt === 2) throw error
+      }
+    }
+    if (!user) throw new Error('User creation failed')
+    await logAudit({ userId: session.id, action: 'USER_CREATE', entity: 'User', entityId: user.id, newValue: { email: user.email, fullName: user.fullName, roleKey: data.roleKey, branchId: user.branch?.id, nationalId: user.nationalId, employeeNumber: user.employeeNumber } })
     return NextResponse.json({ success: true, user }, { status: 201 })
   } catch (err) {
     if (err instanceof z.ZodError) return NextResponse.json({ error: err.issues[0]?.message || 'بيانات غير صحيحة' }, { status: 400 })
