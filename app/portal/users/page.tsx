@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import {
   Loader2,
-  Plus,
   Pencil,
   Trash2,
   X,
@@ -27,7 +26,10 @@ type User = {
   email: string
   fullName: string
   phone: string | null
+  nationalId?: string | null
   isActive: boolean
+  terminatedAt?: string | null
+  terminationReason?: string | null
   lastLoginAt: string | null
   createdAt: string
   role: { key: string; nameAr: string }
@@ -44,6 +46,16 @@ export default function UsersManagementPage() {
   const [success, setSuccess] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState<User | null>(null)
+  const [filterStatus, setFilterStatus] = useState<
+    'all' | 'active' | 'inactive' | 'terminated'
+  >('all')
+  const [session, setSession] = useState<{ roleKey: string } | null>(null)
+  const [terminateModal, setTerminateModal] = useState<{
+    open: boolean
+    user: User | null
+  }>({ open: false, user: null })
+  const [terminationReason, setTerminationReason] = useState('')
+  const isAdmin = session?.roleKey === 'admin'
   const load = async () => {
     setLoading(true)
     try {
@@ -63,6 +75,14 @@ export default function UsersManagementPage() {
   }
   useEffect(() => {
     void load()
+  }, [])
+  useEffect(() => {
+    fetch('/api/auth/staff/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.user?.roleKey) setSession({ roleKey: d.user.roleKey })
+      })
+      .catch(() => {})
   }, [])
   const action = async (user: User, method: string, body?: unknown) => {
     setError('')
@@ -89,13 +109,46 @@ export default function UsersManagementPage() {
       setError('تعذّر الاتصال')
     }
   }
-  const filtered = users.filter(
-    (u) =>
-      !q ||
-      `${u.fullName} ${u.email} ${u.phone || ''}`
+  const handleTerminate = async () => {
+    if (!terminateModal.user) return
+    setError('')
+    try {
+      const res = await fetch(`/api/staff/users/${terminateModal.user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isActive: false,
+          terminatedAt: new Date().toISOString(),
+          terminationReason: terminationReason.trim() || undefined,
+        }),
+      })
+      const d = await res.json()
+      if (!res.ok) {
+        setError(d.error || 'فشل إنهاء الخدمة')
+        return
+      }
+      setTerminateModal({ open: false, user: null })
+      setTerminationReason('')
+      setSuccess('تم إنهاء خدمة الموظف')
+      await load()
+    } catch {
+      setError('تعذّر الاتصال')
+    }
+  }
+  const filtered = users.filter((u) => {
+    const query = q.toLowerCase()
+    const matchesSearch =
+      !query ||
+      `${u.fullName} ${u.email} ${u.phone || ''} ${u.nationalId || ''}`
         .toLowerCase()
-        .includes(q.toLowerCase())
-  )
+        .includes(query)
+    const matchesStatus =
+      filterStatus === 'all' ||
+      (filterStatus === 'active' && u.isActive && !u.terminatedAt) ||
+      (filterStatus === 'inactive' && !u.isActive && !u.terminatedAt) ||
+      (filterStatus === 'terminated' && !!u.terminatedAt)
+    return matchesSearch && matchesStatus
+  })
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -131,9 +184,33 @@ export default function UsersManagementPage() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="ابحث بالاسم / البريد / الهاتف"
+          placeholder="ابحث بالاسم / البريد / الهاتف / الرقم القومي"
           className="input pr-10"
         />
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {[
+          { key: 'all', label: 'الكل' },
+          { key: 'active', label: 'نشط' },
+          { key: 'inactive', label: 'معطل' },
+          { key: 'terminated', label: 'منتهي' },
+        ].map((filter) => (
+          <button
+            key={filter.key}
+            onClick={() =>
+              setFilterStatus(
+                filter.key as 'all' | 'active' | 'inactive' | 'terminated'
+              )
+            }
+            className={`h-9 px-4 rounded-full text-[12px] font-bold ${
+              filterStatus === filter.key
+                ? 'bg-[#0d7a3e] text-white'
+                : 'bg-white border border-black/10 text-black/60'
+            }`}
+          >
+            {filter.label}
+          </button>
+        ))}
       </div>
       <div className="rounded-[18px] bg-white border border-black/5 overflow-hidden">
         {loading ? (
@@ -147,6 +224,7 @@ export default function UsersManagementPage() {
                 <tr>
                   {[
                     'الاسم',
+                    'الرقم القومي',
                     'البريد',
                     'الدور',
                     'الفرع',
@@ -167,6 +245,9 @@ export default function UsersManagementPage() {
                       {u.fullName}
                       <div className="text-[10px] text-black/50">{u.phone}</div>
                     </td>
+                    <td className="px-4 py-3 font-mono">
+                      {u.nationalId || '—'}
+                    </td>
                     <td className="px-4 py-3 font-mono">{u.email}</td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-1 rounded-full bg-[#0d7a3e]/10 text-[#0d7a3e]">
@@ -175,12 +256,16 @@ export default function UsersManagementPage() {
                     </td>
                     <td className="px-4 py-3">{u.branch?.name || '—'}</td>
                     <td className="px-4 py-3">
-                      {u.isActive ? (
+                      {u.terminatedAt ? (
+                        <span className="text-red-600">
+                          <XCircle className="inline w-3 h-3" /> منتهي
+                        </span>
+                      ) : u.isActive ? (
                         <span className="text-green-600">
                           <CheckCircle2 className="inline w-3 h-3" /> نشط
                         </span>
                       ) : (
-                        <span className="text-red-500">
+                        <span className="text-yellow-600">
                           <XCircle className="inline w-3 h-3" /> معطّل
                         </span>
                       )}
@@ -212,15 +297,27 @@ export default function UsersManagementPage() {
                           <CheckCircle2 className="w-3.5 h-3.5" />
                         )}
                       </button>
-                      <button
-                        onClick={() => {
-                          if (confirm(`هل تريد حذف "${u.fullName}"؟`))
-                            void action(u, 'DELETE')
-                        }}
-                        className="w-8 h-8 rounded-full bg-red-50 text-red-600 grid place-items-center"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {isAdmin && !u.terminatedAt && (
+                        <button
+                          onClick={() =>
+                            setTerminateModal({ open: true, user: u })
+                          }
+                          className="h-8 px-3 rounded-full bg-red-50 text-red-600 text-[11px] font-bold"
+                        >
+                          إنهاء الخدمة
+                        </button>
+                      )}
+                      {isAdmin && (
+                        <button
+                          onClick={() => {
+                            if (confirm(`هل تريد حذف "${u.fullName}"؟`))
+                              void action(u, 'DELETE')
+                          }}
+                          className="w-8 h-8 rounded-full bg-red-50 text-red-600 grid place-items-center"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -241,6 +338,53 @@ export default function UsersManagementPage() {
             void load()
           }}
         />
+      )}
+      {terminateModal.open && terminateModal.user && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-[20px] w-full max-w-lg">
+            <div className="p-5 border-b flex justify-between">
+              <b>إنهاء خدمة: {terminateModal.user.fullName}</b>
+              <button
+                onClick={() => {
+                  setTerminateModal({ open: false, user: null })
+                  setTerminationReason('')
+                }}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <label className="block text-[12px] font-bold">
+                سبب الإنهاء (اختياري)
+                <textarea
+                  value={terminationReason}
+                  onChange={(e) => setTerminationReason(e.target.value)}
+                  placeholder="مثال: استقالة، انتهاء عقد"
+                  className="input mt-2 min-h-24"
+                />
+              </label>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTerminateModal({ open: false, user: null })
+                    setTerminationReason('')
+                  }}
+                  className="flex-1 h-11 rounded-full border"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleTerminate()}
+                  className="flex-1 h-11 rounded-full bg-red-600 text-white font-bold"
+                >
+                  تأكيد الإنهاء
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
@@ -264,6 +408,7 @@ function UserModal({
     fullName: user?.fullName || '',
     email: user?.email || '',
     phone: user?.phone || '',
+    nationalId: user?.nationalId || '',
     password: '',
     roleKey: user?.role.key || 'receptionist',
     branchId: user?.branch?.id || '',
@@ -276,6 +421,7 @@ function UserModal({
     const body: Record<string, unknown> = {
       fullName: form.fullName,
       phone: form.phone,
+      nationalId: form.nationalId || undefined,
       roleKey: form.roleKey,
       branchId: form.branchId || null,
     }
@@ -330,6 +476,22 @@ function UserModal({
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
           />
+          <label className="block text-[12px] font-bold">
+            الرقم القومي (اختياري)
+            <input
+              type="text"
+              className="input mt-2"
+              value={form.nationalId}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  nationalId: e.target.value.replace(/\D/g, '').slice(0, 14),
+                })
+              }
+              placeholder="14 رقم"
+              maxLength={14}
+            />
+          </label>
           <input
             type="password"
             className="input"
