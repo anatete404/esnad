@@ -1,5 +1,6 @@
+import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import {
   ArrowRight,
   Calendar,
@@ -16,6 +17,10 @@ import PublicHeader from '@/components/PublicHeader'
 import PublicFooter from '@/components/PublicFooter'
 import ApplicationDetailsCard from '@/components/ApplicationDetailsCard'
 import { prisma } from '@/lib/prisma'
+import {
+  TRACK_IDENTITY_COOKIE,
+  verifyTrackIdentityToken,
+} from '@/lib/trackIdentity'
 import { formatDate } from '@/lib/utils'
 
 const STAGE_LABELS: Record<string, string> = {
@@ -50,6 +55,16 @@ export default async function TrackingDetailPage({
   params: Promise<{ trackingNumber: string }>
 }) {
   const { trackingNumber } = await params
+  const cookieStore = await cookies()
+  const token = cookieStore.get(TRACK_IDENTITY_COOKIE)?.value
+  const valid = token
+    ? await verifyTrackIdentityToken(token, trackingNumber)
+    : false
+
+  if (!valid) {
+    redirect('/track')
+  }
+
   const decoded = decodeURIComponent(trackingNumber)
 
   const application = await prisma.application.findUnique({
