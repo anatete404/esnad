@@ -16,6 +16,8 @@ model Branch {
 
   users        User[]
   applications Application[]
+  auditLogs        AuditLog[] @relation("AuditLogBranch")
+  auditLogsActor   AuditLog[] @relation("AuditLogActorBranch")
 }
 
 model Role {
@@ -220,6 +222,10 @@ model AuditLog {
   id        String   @id @default(cuid())
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
+  branchId       String?
+  actorBranchId  String?
+  branch         Branch? @relation("AuditLogBranch", fields: [branchId], references: [id])
+  actorBranch    Branch? @relation("AuditLogActorBranch", fields: [actorBranchId], references: [id])
   action    String
   entity    String
   entityId  String?
@@ -228,6 +234,11 @@ model AuditLog {
   ip        String?
   userAgent String?
   createdAt DateTime @default(now())
+
+  @@index([branchId])
+  @@index([actorBranchId])
+  @@index([branchId, createdAt])
+  @@index([actorBranchId, createdAt])
 }
 
 model Payment {
