@@ -47,6 +47,8 @@ export async function POST(req: Request) {
     )
 
     await logAudit({
+      branchId: null,
+      actorBranchId: null,
       action: 'CONTACT_FORM_SUBMIT',
       entity: 'Contact',
       newValue: {

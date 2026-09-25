@@ -35,6 +35,8 @@ export async function POST(req: Request) {
 
     await logAudit({
       userId: session.id,
+      branchId: session.branchId,
+      actorBranchId: session.branchId,
       action: 'ATTENDANCE_CHECK_IN',
       entity: 'Attendance',
       entityId: attendance.id,
