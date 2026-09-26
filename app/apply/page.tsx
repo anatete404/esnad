@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import {
   Loader2,
@@ -25,6 +26,18 @@ const STEPS = [
   { n: 3, t: 'رفع المستندات', icon: FileText },
   { n: 4, t: 'المراجعة والإرسال', icon: CheckCircle2 },
 ]
+
+const LandMapPicker = dynamic(() => import('@/components/LandMapPicker'), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="rounded-xl bg-[#f9fbf9] border border-black/5 grid place-items-center text-[12px] text-black/50"
+      style={{ height: 360 }}
+    >
+      جاري تحميل الخريطة...
+    </div>
+  ),
+})
 
 export default function ApplyPage() {
   const [step, setStep] = useState(1)
@@ -306,6 +319,17 @@ export default function ApplyPage() {
                     placeholder="الكيلو 60 طريق..."
                   />
                 </Field>
+              </div>
+
+              <div>
+                <div className="text-[11px] font-bold text-black/70 mb-1.5">
+                  حدد موقع الأرض على الخريطة <span className="text-black/50">(اختياري)</span>
+                </div>
+                <LandMapPicker
+                  lat={form.lat}
+                  lng={form.lng}
+                  onChange={(newLat, newLng) => setForm((f) => ({ ...f, lat: newLat, lng: newLng }))}
+                />
               </div>
 
               <div className="h-px bg-black/5 my-3" />

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -103,6 +104,18 @@ type Staff = {
   fullName: string;
   role: { nameAr: string };
 };
+
+const LandMap = dynamic(() => import("@/components/LandMap"), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="rounded-xl bg-[#f9fbf9] border border-black/5 grid place-items-center text-[12px] text-black/50"
+      style={{ height: 260 }}
+    >
+      جاري تحميل الخريطة...
+    </div>
+  ),
+});
 
 export default function StaffApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -279,6 +292,7 @@ export default function StaffApplicationDetailPage() {
                 <Info label="المركز" value={app.land.center || "—"} />
                 <Info label="القرية" value={app.land.village || "—"} />
                 <MapLink lat={app.land.lat} lng={app.land.lng} />
+                <LandMap lat={app.land.lat} lng={app.land.lng} />
                 <Info
                   label="المساحة"
                   value={`${app.land.totalFaddan.toFixed(4)} فدان`}
