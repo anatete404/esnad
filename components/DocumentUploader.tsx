@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { CloudUpload, FileText, Loader2, Trash2, CheckCircle2 } from 'lucide-react'
+import { CloudUpload, FileText, Loader2, Trash2, CheckCircle2, X } from 'lucide-react'
 
 export type UploadedDoc = {
   id: string
@@ -33,6 +33,7 @@ export default function DocumentUploader({
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [drag, setDrag] = useState(false)
+  const [previewDoc, setPreviewDoc] = useState<UploadedDoc | null>(null)
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return
@@ -125,7 +126,21 @@ export default function DocumentUploader({
               className="flex items-center justify-between rounded-[10px] bg-[#f6f8f6] border border-black/5 px-3 py-2"
             >
               <div className="flex items-center gap-2 min-w-0">
-                {doc.isVerified ? (
+                {doc.mimeType.startsWith('image/') ? (
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDoc(doc)}
+                    className="w-10 h-10 rounded-md overflow-hidden border border-black/10 shrink-0 hover:border-[#0d7a3e] transition"
+                    aria-label="معاينة الصورة"
+                  >
+                    <img
+                      src={`/api/documents/${doc.id}`}
+                      alt={doc.originalName}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </button>
+                ) : doc.isVerified ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-[#0d7a3e] shrink-0" />
                 ) : (
                   <FileText className="w-3.5 h-3.5 text-black/40 shrink-0" />
@@ -138,6 +153,9 @@ export default function DocumentUploader({
                 >
                   {doc.originalName}
                 </a>
+                {doc.isVerified && doc.mimeType.startsWith('image/') && (
+                  <CheckCircle2 className="w-3 h-3 text-[#0d7a3e] shrink-0" />
+                )}
                 <span className="text-[10px] text-black/40 shrink-0">
                   {(doc.size / 1024).toFixed(0)} KB
                 </span>
@@ -153,6 +171,37 @@ export default function DocumentUploader({
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {previewDoc && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setPreviewDoc(null)}
+        >
+          <div
+            className="relative max-w-4xl w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setPreviewDoc(null)}
+              className="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/20 text-white grid place-items-center hover:bg-white/30 transition"
+              aria-label="إغلاق"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="bg-white rounded-2xl p-3 max-h-[85vh] overflow-auto">
+              <img
+                src={`/api/documents/${previewDoc.id}`}
+                alt={previewDoc.originalName}
+                className="w-full h-auto max-h-[75vh] object-contain rounded-lg"
+              />
+              <div className="mt-3 text-[12px] text-black/70 font-semibold text-center truncate">
+                {previewDoc.originalName}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
