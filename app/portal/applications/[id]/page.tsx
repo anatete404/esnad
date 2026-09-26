@@ -56,7 +56,15 @@ type Detail = {
   rejectedAt: string | null;
   submittedAt: string;
   updatedAt: string;
-  citizen: { fullName: string; nationalId: string; phone: string };
+  citizen: {
+    fullName: string;
+    nationalId: string;
+    phone: string;
+    phone2: string | null;
+    email: string | null;
+    address: string | null;
+    capacity: string;
+  };
   land: {
     gov: string | null;
     center: string | null;
@@ -407,6 +415,10 @@ export default function StaffApplicationDetailPage() {
             <Info label="الاسم" value={app.citizen.fullName} />
             <Info label="الرقم القومي" value={app.citizen.nationalId} />
             <Info label="الهاتف" value={app.citizen.phone} />
+            <Info label="هاتف احتياطي" value={app.citizen.phone2 || "—"} />
+            <Info label="البريد الإلكتروني" value={app.citizen.email || "—"} />
+            <Info label="الصفة" value={app.citizen.capacity} />
+            <Info label="العنوان" value={app.citizen.address || "—"} />
           </Card>
           <Card title="بيانات الأرض" icon={MapPin}>
             {app.land && (
