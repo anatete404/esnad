@@ -116,6 +116,9 @@ export default async function CitizenDashboard() {
                     <div className="text-[12px] text-black/60">
                       {application.land?.gov || 'موقع غير محدد'} • {STAGE_LABELS[application.stage] || application.stage}
                     </div>
+                    <div className="text-[10px] text-black/45 mt-1">
+                      آخر تحديث: {new Date(application.updatedAt).toLocaleDateString('ar-EG', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                    </div>
                     {application.status === 'ON_HOLD' && application.rejectionReason && (
                       <div className="mt-2 flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 p-2">
                         <AlertCircle className="w-3.5 h-3.5 text-amber-700 mt-0.5 shrink-0" />
