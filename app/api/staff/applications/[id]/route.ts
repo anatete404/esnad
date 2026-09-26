@@ -42,6 +42,12 @@ export async function GET(
       payments: {
         orderBy: { createdAt: 'desc' },
       },
+      surveys: {
+        orderBy: { createdAt: 'desc' },
+        include: {
+          surveyor: { select: { id: true, fullName: true } },
+        },
+      },
     },
   })
 
@@ -57,6 +63,8 @@ export async function GET(
       canEditAuthority: can(session, 'applications.edit'),
       canCreateContract: can(session, 'contracts.create'),
       canSignContract: can(session, 'contracts.sign'),
+      canScheduleSurvey: can(session, 'surveys.schedule'),
+      canSubmitSurvey: can(session, 'surveys.submit'),
       canAssign: can(session, 'applications.assign'),
       canTransfer: can(session, 'applications.transfer'),
       canVerifyDocs: can(session, 'documents.verify'),

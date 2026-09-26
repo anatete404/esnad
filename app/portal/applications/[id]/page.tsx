@@ -98,12 +98,22 @@ type Detail = {
     value: number;
     paymentPlan: string | null;
   } | null;
+  surveys: Array<{
+    id: string;
+    surveyorId: string;
+    surveyor: { id: string; fullName: string } | null;
+    scheduledAt: string | null;
+    completedAt: string | null;
+    result: string | null;
+    notes: string | null;
+    createdAt: string;
+  }>;
   assignedTo: { id: string; fullName: string; email: string } | null;
 };
 type Staff = {
   id: string;
   fullName: string;
-  role: { nameAr: string };
+  role: { key: string; nameAr: string };
 };
 
 const LandMap = dynamic(() => import("@/components/LandMap"), {
@@ -138,6 +148,14 @@ export default function StaffApplicationDetailPage() {
   const [currentUserRole, setCurrentUserRole] = useState("");
   const [currentUserId, setCurrentUserId] = useState("");
   const [priorityLoading, setPriorityLoading] = useState(false);
+  const [canScheduleSurvey, setCanScheduleSurvey] = useState(false);
+  const [canSubmitSurvey, setCanSubmitSurvey] = useState(false);
+  const [surveyorId, setSurveyorId] = useState("");
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [surveyScheduleNotes, setSurveyScheduleNotes] = useState("");
+  const [surveyResult, setSurveyResult] = useState("MATCH");
+  const [surveyCompleteNotes, setSurveyCompleteNotes] = useState("");
+  const [surveySubmitting, setSurveySubmitting] = useState(false);
 
   const load = async () => {
     const [res, staffRes] = await Promise.all([
@@ -153,6 +171,8 @@ export default function StaffApplicationDetailPage() {
       setApp(data.application);
       setCanEdit(data.permissions?.canEditAuthority ?? false);
       setCanCreateContract(data.permissions?.canCreateContract ?? false);
+      setCanScheduleSurvey(data.permissions?.canScheduleSurvey ?? false);
+      setCanSubmitSurvey(data.permissions?.canSubmitSurvey ?? false);
       setToStage(data.application.stage);
       setSelectedStaff(data.application.assignedTo?.id || "");
     }
@@ -194,6 +214,78 @@ export default function StaffApplicationDetailPage() {
       setError("خطأ في الاتصال");
     } finally {
       setPriorityLoading(false);
+    }
+  };
+
+  const scheduleSurvey = async () => {
+    if (!surveyorId || !scheduledAt) {
+      setError("يجب اختيار المساح والموعد");
+      return;
+    }
+    const scheduleDate = new Date(scheduledAt);
+    if (Number.isNaN(scheduleDate.getTime())) {
+      setError("موعد المعاينة غير صالح");
+      return;
+    }
+
+    setSurveySubmitting(true);
+    setError("");
+    setSuccess("");
+    try {
+      const res = await fetch(`/api/staff/applications/${id}/survey/schedule`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          surveyorId,
+          scheduledAt: scheduleDate.toISOString(),
+          notes: surveyScheduleNotes,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "فشل جدولة المعاينة");
+        return;
+      }
+      setSuccess("تم جدولة المعاينة بنجاح");
+      setSurveyorId("");
+      setScheduledAt("");
+      setSurveyScheduleNotes("");
+      setTimeout(() => setSuccess(""), 3000);
+      await load();
+    } catch {
+      setError("خطأ في الاتصال");
+    } finally {
+      setSurveySubmitting(false);
+    }
+  };
+
+  const completeSurvey = async () => {
+    if (surveyResult === "MISMATCH" && surveyCompleteNotes.trim().length < 5) {
+      setError("ملاحظات إجبارية (5 أحرف على الأقل) عند عدم المطابقة");
+      return;
+    }
+    setSurveySubmitting(true);
+    setError("");
+    setSuccess("");
+    try {
+      const res = await fetch(`/api/staff/applications/${id}/survey/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ result: surveyResult, notes: surveyCompleteNotes }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "فشل تسجيل المعاينة");
+        return;
+      }
+      setSuccess("تم تسجيل نتيجة المعاينة");
+      setSurveyCompleteNotes("");
+      setTimeout(() => setSuccess(""), 3000);
+      await load();
+    } catch {
+      setError("خطأ في الاتصال");
+    } finally {
+      setSurveySubmitting(false);
     }
   };
 
@@ -282,6 +374,9 @@ export default function StaffApplicationDetailPage() {
       </div>
     );
   if (!app) return null;
+  const pendingSurvey = app.surveys.find(
+    (survey) => !survey.completedAt && survey.surveyorId === currentUserId,
+  );
   return (
     <div className="space-y-6">
       <Link
@@ -467,6 +562,146 @@ export default function StaffApplicationDetailPage() {
               <ArrowRightLeft className="w-3.5 h-3.5" />
               تسليم المهمة لموظف آخر
             </button>
+          </div>
+          <div className="rounded-[18px] bg-white border border-black/5 p-5">
+            <h3 className="font-extrabold flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-[#0d7a3e]" />
+              المعاينات
+            </h3>
+
+            {app.surveys.length > 0 && (
+              <div className="mt-4 space-y-3">
+                {app.surveys.map((survey) => (
+                  <div
+                    key={survey.id}
+                    className="rounded-xl bg-[#f9fbf9] border border-black/5 p-3 text-[12px]"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-bold">
+                        {survey.surveyor?.fullName || "—"}
+                      </div>
+                      {survey.completedAt ? (
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            survey.result === "MATCH"
+                              ? "bg-green-50 text-green-700"
+                              : survey.result === "MISMATCH"
+                                ? "bg-red-50 text-red-700"
+                                : "bg-amber-50 text-amber-700"
+                          }`}
+                        >
+                          {survey.result === "MATCH"
+                            ? "مطابق"
+                            : survey.result === "MISMATCH"
+                              ? "غير مطابق"
+                              : survey.result === "NEEDS_FOLLOWUP"
+                                ? "يحتاج متابعة"
+                                : "—"}
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700">
+                          مجدولة
+                        </span>
+                      )}
+                    </div>
+                    {survey.scheduledAt && (
+                      <div className="mt-1 text-[11px] text-black/55">
+                        الموعد: {new Date(survey.scheduledAt).toLocaleString("ar-EG")}
+                      </div>
+                    )}
+                    {survey.notes && (
+                      <div className="mt-1 text-[11px] text-black/70 leading-6">
+                        {survey.notes}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {canScheduleSurvey && !app.surveys.some((survey) => !survey.completedAt) && (
+              <div className="mt-4 pt-4 border-t border-black/5 space-y-3">
+                <div className="text-[11px] font-bold text-black/70">
+                  جدولة معاينة جديدة
+                </div>
+                <select
+                  value={surveyorId}
+                  onChange={(event) => setSurveyorId(event.target.value)}
+                  className="input"
+                  disabled={surveySubmitting}
+                >
+                  <option value="">— اختر مساح —</option>
+                  {staff
+                    .filter((member) => member.role.key === "surveyor")
+                    .map((member) => (
+                      <option key={member.id} value={member.id}>
+                        {member.fullName}
+                      </option>
+                    ))}
+                </select>
+                <input
+                  type="datetime-local"
+                  value={scheduledAt}
+                  onChange={(event) => setScheduledAt(event.target.value)}
+                  className="input"
+                  disabled={surveySubmitting}
+                />
+                <textarea
+                  value={surveyScheduleNotes}
+                  onChange={(event) => setSurveyScheduleNotes(event.target.value)}
+                  placeholder="ملاحظات (اختياري)"
+                  className="input"
+                  disabled={surveySubmitting}
+                />
+                <button
+                  onClick={() => void scheduleSurvey()}
+                  disabled={surveySubmitting || !surveyorId || !scheduledAt}
+                  className="w-full h-10 rounded-full bg-[#0d7a3e] text-white font-bold disabled:opacity-40"
+                >
+                  {surveySubmitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                  ) : (
+                    "جدولة المعاينة"
+                  )}
+                </button>
+              </div>
+            )}
+
+            {canSubmitSurvey && pendingSurvey && (
+              <div className="mt-4 pt-4 border-t border-black/5 space-y-3">
+                <div className="text-[11px] font-bold text-black/70">
+                  تسجيل نتيجة المعاينة
+                </div>
+                <select
+                  value={surveyResult}
+                  onChange={(event) => setSurveyResult(event.target.value)}
+                  className="input"
+                  disabled={surveySubmitting}
+                >
+                  <option value="MATCH">مطابق</option>
+                  <option value="MISMATCH">غير مطابق</option>
+                  <option value="NEEDS_FOLLOWUP">يحتاج متابعة</option>
+                </select>
+                <textarea
+                  value={surveyCompleteNotes}
+                  onChange={(event) => setSurveyCompleteNotes(event.target.value)}
+                  placeholder="ملاحظات (إجبارية عند عدم المطابقة)"
+                  className="input"
+                  disabled={surveySubmitting}
+                />
+                <button
+                  onClick={() => void completeSurvey()}
+                  disabled={surveySubmitting}
+                  className="w-full h-10 rounded-full bg-[#0d7a3e] text-white font-bold disabled:opacity-40"
+                >
+                  {surveySubmitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                  ) : (
+                    "تسجيل النتيجة"
+                  )}
+                </button>
+              </div>
+            )}
           </div>
           <ContractManager
             applicationId={app.id}
