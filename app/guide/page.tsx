@@ -234,10 +234,6 @@ export default function GuidePage() {
               </a>
             </div>
             <div className="flex items-center gap-2">
-              <span className="opacity-75">سجل تجاري:</span>
-              <span className="font-bold">157574</span>
-            </div>
-            <div className="flex items-center gap-2">
               <span className="opacity-75">سنوات الخبرة:</span>
               <span className="font-bold">+22 سنة</span>
             </div>
@@ -256,7 +252,7 @@ export default function GuidePage() {
         <footer className="mt-10 pt-6 border-t border-black/5 text-center text-[11px] text-black/40">
           <div className="flex items-center justify-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-[#0d7a3e]" />
-            <span>منصة إسناد للتنمية الزراعية — سجل تجاري 157574</span>
+            <span>منصة إسناد للتنمية الزراعية</span>
           </div>
           <div className="mt-1">
             تم تحديث هذا الدليل في {new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long' })}

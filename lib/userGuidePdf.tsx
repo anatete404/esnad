@@ -266,7 +266,7 @@ export function UserGuidePdf() {
           </Text>
         </View>
 
-        <Text style={styles.footer}>منصة إسناد للتنمية الزراعية | سجل تجاري 157574 | جميع الحقوق محفوظة</Text>
+        <Text style={styles.footer}>منصة إسناد للتنمية الزراعية | جميع الحقوق محفوظة</Text>
         <Text style={styles.pageNumber}>صفحة 2 من 2</Text>
       </Page>
     </Document>

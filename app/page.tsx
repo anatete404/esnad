@@ -14,7 +14,6 @@ import {
 import HomeFaq from '@/components/HomeFaq'
 import AnimatedCounter from '@/components/AnimatedCounter'
 import AreaCalculator from '@/components/AreaCalculator'
-import LiveStatus from '@/components/LiveStatus'
 import ProcessTimeline from '@/components/ProcessTimeline'
 import PublicFooter from '@/components/PublicFooter'
 import PublicHeader from '@/components/PublicHeader'
@@ -67,7 +66,6 @@ export default async function HomePage() {
                 <span className="h-2 w-2 rounded-full bg-[#0d7a3e] animate-pulse" />
                 منصة إسناد للاعتمادات والخدمات الإدارية
               </div>
-              <LiveStatus />
             </div>
 
             <h1 className="mt-5 text-[28px] font-extrabold leading-[1.15] tracking-tight md:text-[44px]">

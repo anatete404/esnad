@@ -174,7 +174,6 @@ export default function HelpPage() {
               </a>
             </div>
           </div>
-          <div className="mt-5 text-[11px] text-white/70">سجل تجاري 157574 منذ 2004</div>
         </section>
 
         <nav aria-label="روابط المساعدة" className="mt-8 flex flex-wrap justify-center gap-3 text-[12px] font-bold">

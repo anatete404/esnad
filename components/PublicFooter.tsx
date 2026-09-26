@@ -7,7 +7,7 @@ export default function PublicFooter() {
         <div>
           <div className="text-[15px] font-extrabold">منصة إسناد للتنمية الزراعية</div>
           <div className="mt-3 opacity-70">
-            لاستصلاح الأراضي الصحراوية • سجل تجاري 157574 منذ 2004
+            لاستصلاح الأراضي الصحراوية
             <br />
             منظومة متكاملة لتقنين أوضاع الأراضي
           </div>
