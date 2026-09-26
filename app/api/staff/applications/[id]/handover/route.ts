@@ -33,6 +33,7 @@ export async function POST(
         id: true,
         trackingNumber: true,
         branchId: true,
+        stage: true,
         assignedToId: true,
         assignedTo: { select: { fullName: true } },
       },
@@ -81,7 +82,7 @@ export async function POST(
       data: {
         applicationId: id,
         fromStage: null,
-        toStage: 'HANDOVER',
+        toStage: application.stage,
         action: 'HANDOVER',
         notes: data.notes,
         userId: session.id,
