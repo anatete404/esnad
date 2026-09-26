@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { AlertCircle, Clock, FileText, MapPinned, ShieldCheck } from 'lucide-react'
 import { getCitizenSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import CitizenLogoutButton from '@/components/CitizenLogoutButton'
 
 export default async function CitizenDashboard() {
   const session = await getCitizenSession()
@@ -70,11 +71,7 @@ export default async function CitizenDashboard() {
               <Link href="/apply" className="rounded-full bg-[#0d7a3e] px-4 py-2 text-[12px] font-bold text-white">
                 تقديم طلب جديد
               </Link>
-              <form action="/api/auth/citizen/logout" method="post">
-                <button type="submit" className="rounded-full border border-black/10 px-4 py-2 text-[12px] font-bold text-black">
-                  خروج
-                </button>
-              </form>
+              <CitizenLogoutButton />
             </div>
           </div>
         </header>
