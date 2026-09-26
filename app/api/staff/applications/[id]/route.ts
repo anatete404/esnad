@@ -55,6 +55,11 @@ export async function GET(
       canEditPayments: can(session, 'payments.edit'),
       canDeletePayments: can(session, 'payments.delete'),
       canEditAuthority: can(session, 'applications.edit'),
+      canCreateContract: can(session, 'contracts.create'),
+      canSignContract: can(session, 'contracts.sign'),
+      canAssign: can(session, 'applications.assign'),
+      canTransfer: can(session, 'applications.transfer'),
+      canVerifyDocs: can(session, 'documents.verify'),
     },
   })
 }

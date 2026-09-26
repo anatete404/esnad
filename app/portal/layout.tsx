@@ -36,7 +36,7 @@ const MENU = [
   { href: '/portal/my-activity', label: 'نشاطي', icon: Activity, perm: null },
   { href: '/portal/attendance', label: 'الحضور', icon: CalendarClock, perm: null },
   { href: '/portal/applications', label: 'الطلبات', icon: FileText, perm: 'applications.view' },
-  { href: '/portal/users', label: 'المستخدمون', icon: Users, perm: 'users.manage' },
+  { href: '/portal/users', label: 'المستخدمون', icon: Users, perm: ['users.manage', 'users.manage.branch'] },
   { href: '/portal/appeals', label: 'التظلمات', icon: MessageSquareWarning, perm: 'appeals.view' },
   { href: '/portal/reports', label: 'التقارير', icon: TrendingUp, perm: 'reports.view' },
   { href: '/portal/audit', label: 'سجل التدقيق', icon: Shield, perm: 'audit.view' },
@@ -88,7 +88,8 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       return user?.roleKey === 'admin' || user?.roleKey === 'branch_manager'
     }
     if (!m.perm) return true
-    return user?.permissions.includes(m.perm)
+    const perms = Array.isArray(m.perm) ? m.perm : [m.perm]
+    return perms.some((p) => user?.permissions.includes(p))
   })
 
   return (

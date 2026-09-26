@@ -107,6 +107,7 @@ export default function StaffApplicationDetailPage() {
   const router = useRouter();
   const [app, setApp] = useState<Detail | null>(null);
   const [canEdit, setCanEdit] = useState(false);
+  const [canCreateContract, setCanCreateContract] = useState(false);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -133,7 +134,8 @@ export default function StaffApplicationDetailPage() {
     if (res.ok) {
       const data = await res.json();
       setApp(data.application);
-      setCanEdit(data.permissions?.canEditPayments ?? false);
+      setCanEdit(data.permissions?.canEditAuthority ?? false);
+      setCanCreateContract(data.permissions?.canCreateContract ?? false);
       setToStage(data.application.stage);
       setSelectedStaff(data.application.assignedTo?.id || "");
     }
@@ -394,7 +396,7 @@ export default function StaffApplicationDetailPage() {
             applicationStage={app.stage}
             applicationStatus={app.status}
             initialContract={app.contract}
-            canEdit={canEdit}
+            canEdit={canCreateContract}
             onRefresh={() => void load()}
           />
           {app.stage === "CONTRACT" || app.stage === "COMMITTEE" || app.stage === "COMPLETED" ? (
