@@ -5,19 +5,28 @@ import { prisma } from '@/lib/prisma'
 import { COOKIES, createCitizenToken, hashPassword } from '@/lib/auth'
 import { logAudit } from '@/lib/audit'
 import { sendEmail, welcomeEmail } from '@/lib/email'
+import { isValidEgyptianNationalId } from '@/lib/egyptianNationalId'
 
 const schema = z.object({
   fullName: z.string().min(3, 'الاسم قصير جدًا'),
-  nationalId: z.string().regex(/^\d{14}$/, 'الرقم القومي لازم 14 رقم'),
+  nationalId: z
+    .string()
+    .regex(/^\d{14}$/, 'الرقم القومي لازم 14 رقم')
+    .refine(isValidEgyptianNationalId, {
+      message: 'الرقم القومي غير صحيح (تحقق من التاريخ والمحافظة)',
+    }),
   phone: z.string().min(10, 'رقم الهاتف غير صحيح'),
   phone2: z.string().optional(),
-  email: z.string().email('البريد غير صحيح').optional().or(z.literal('')),
+  email: z.string().email('البريد غير صحيح'),
   password: z.string().min(8, 'كلمة السر 8 أحرف على الأقل'),
   gov: z.string().min(2, 'المحافظة مطلوبة'),
   center: z.string().optional(),
   village: z.string().optional(),
   address: z.string().optional(),
   capacity: z.string().default('مالك'),
+  acceptTerms: z.literal(true, {
+    error: 'يجب الموافقة على الشروط والأحكام',
+  }),
 })
 
 export async function POST(req: Request) {
@@ -44,7 +53,7 @@ export async function POST(req: Request) {
         fullName: data.fullName,
         phone: data.phone,
         phone2: data.phone2 || null,
-        email: data.email || null,
+        email: data.email,
         passwordHash,
         gov: data.gov,
         center: data.center,
@@ -52,6 +61,7 @@ export async function POST(req: Request) {
         address: data.address,
         capacity: data.capacity,
         isVerified: true,
+        termsAcceptedAt: new Date(),
       },
     })
 
@@ -75,12 +85,10 @@ export async function POST(req: Request) {
     })
 
     // Send welcome email (non-blocking, silent fail)
-    if (citizen.email) {
-      const { subject, html } = welcomeEmail(citizen.fullName)
-      sendEmail({ to: citizen.email, subject, html }).catch((err) => {
-        console.error('[register] welcome email failed:', err)
-      })
-    }
+    const { subject, html } = welcomeEmail(citizen.fullName)
+    sendEmail({ to: data.email, subject, html }).catch((err) => {
+      console.error('[register] welcome email failed:', err)
+    })
 
     return NextResponse.json({
       success: true,

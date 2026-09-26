@@ -74,6 +74,7 @@ model Citizen {
   village      String?
   capacity     String    @default("مالك")
   isVerified   Boolean   @default(false)
+  termsAcceptedAt DateTime?
   createdAt    DateTime  @default(now())
 
   applications Application[]

@@ -6,6 +6,7 @@ import { Loader2, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import PublicFooter from '@/components/PublicFooter'
 import PublicHeader from '@/components/PublicHeader'
+import { isValidEgyptianNationalId } from '@/lib/egyptianNationalId'
 
 const GOVS = [
   'القاهرة', 'الجيزة', 'الفيوم', 'بني سويف', 'المنيا', 'أسيوط',
@@ -33,6 +34,7 @@ export default function RegisterPage() {
     address: '',
     capacity: 'مالك',
   })
+  const [acceptTerms, setAcceptTerms] = useState(false)
 
   const update = (key: string, value: string) => {
     setForm((current) => ({ ...current, [key]: value }))
@@ -47,8 +49,13 @@ export default function RegisterPage() {
       return
     }
 
-    if (!/^\d{14}$/.test(form.nationalId)) {
-      setError('الرقم القومي يجب أن يكون 14 رقم')
+    if (!isValidEgyptianNationalId(form.nationalId)) {
+      setError('الرقم القومي غير صحيح (تحقق من التاريخ والمحافظة)')
+      return
+    }
+
+    if (!acceptTerms) {
+      setError('يجب الموافقة على الشروط والأحكام')
       return
     }
 
@@ -57,7 +64,7 @@ export default function RegisterPage() {
       const res = await fetch('/api/auth/citizen/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, acceptTerms }),
       })
       const data = await res.json()
 
@@ -140,12 +147,14 @@ export default function RegisterPage() {
                 />
               </Field>
 
-              <Field label="البريد الإلكتروني">
+              <Field label="البريد الإلكتروني *">
                 <input
                   type="email"
                   className="input"
                   value={form.email}
                   onChange={(event) => update('email', event.target.value)}
+                  placeholder="example@email.com"
+                  required
                 />
               </Field>
 
@@ -226,6 +235,24 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            <label className="flex items-start gap-3 cursor-pointer select-none rounded-xl bg-[#f9fbf9] border border-black/5 p-3">
+              <input
+                type="checkbox"
+                checked={acceptTerms}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
+                className="mt-1 w-4 h-4 accent-[#0d7a3e]"
+              />
+              <span className="text-[12px] text-black/70 leading-6">
+                أوافق على{' '}
+                <Link href="/legal/terms" target="_blank" className="font-bold text-[#0d7a3e] hover:underline">
+                  الشروط والأحكام
+                </Link>{' '}
+                و{' '}
+                <Link href="/legal/privacy" target="_blank" className="font-bold text-[#0d7a3e] hover:underline">
+                  سياسة الخصوصية
+                </Link>
+              </span>
+            </label>
             <button
               type="submit"
               disabled={loading}
