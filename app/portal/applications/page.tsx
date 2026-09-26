@@ -22,6 +22,12 @@ const STAGE_LABELS: Record<string, string> = {
   SURVEY: 'معاينة ميدانية', PRICING: 'تسعير', COMMITTEE: 'عرض على اللجنة',
   CONTRACT: 'تعاقد', COMPLETED: 'منجز', REJECTED: 'مرفوض',
 }
+const PRIORITY_LABELS: Record<string, { label: string; cls: string }> = {
+  LOW: { label: 'منخفضة', cls: 'bg-gray-100 text-gray-700' },
+  NORMAL: { label: 'عادية', cls: 'bg-blue-50 text-blue-700' },
+  HIGH: { label: 'عالية', cls: 'bg-amber-50 text-amber-700' },
+  URGENT: { label: 'عاجلة', cls: 'bg-red-50 text-red-700' },
+}
 const STATUS_LABELS: Record<string, string> = {
   ACTIVE: 'نشط', ON_HOLD: 'معلّق', COMPLETED: 'منجز', REJECTED: 'مرفوض',
 }
@@ -31,6 +37,7 @@ type Row = {
   trackingNumber: string
   stage: string
   status: string
+  priority: string
   submittedAt: string
   citizen: { fullName: string; nationalId: string; phone: string }
   land: { gov: string | null; center: string | null; totalFaddan: number } | null
@@ -262,6 +269,11 @@ export default function ApplicationsListPage() {
                       <span className="px-2 py-1 rounded-full bg-[#0d7a3e]/10 text-[#0d7a3e] font-bold">
                         {STAGE_LABELS[app.stage] || app.stage}
                       </span>
+                      {app.priority && app.priority !== 'NORMAL' && (
+                        <span className={`ms-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${PRIORITY_LABELS[app.priority]?.cls || 'bg-gray-100 text-gray-700'}`}>
+                          {PRIORITY_LABELS[app.priority]?.label || app.priority}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 font-bold">

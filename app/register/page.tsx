@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [form, setForm] = useState({
     fullName: '',
     nationalId: '',
+    birthDate: '',
     phone: '',
     phone2: '',
     email: '',
@@ -118,6 +119,16 @@ export default function RegisterPage() {
                   }
                   placeholder="29901011234567"
                   required
+                />
+              </Field>
+
+              <Field label="تاريخ الميلاد">
+                <input
+                  type="date"
+                  className="input"
+                  value={form.birthDate}
+                  onChange={(event) => update('birthDate', event.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
                 />
               </Field>
 

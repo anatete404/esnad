@@ -49,6 +49,7 @@ type Detail = {
   trackingNumber: string;
   stage: string;
   status: string;
+  priority: string;
   statusNote: string | null;
   statusNoteManual: boolean;
   rejectionReason: string | null;
@@ -136,6 +137,7 @@ export default function StaffApplicationDetailPage() {
   const [showHandover, setShowHandover] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState("");
   const [currentUserId, setCurrentUserId] = useState("");
+  const [priorityLoading, setPriorityLoading] = useState(false);
 
   const load = async () => {
     const [res, staffRes] = await Promise.all([
@@ -169,6 +171,32 @@ export default function StaffApplicationDetailPage() {
       })
       .catch(() => {});
   }, []);
+  const changePriority = async (newPriority: string) => {
+    if (!app || priorityLoading || app.priority === newPriority) return;
+    setPriorityLoading(true);
+    setError("");
+    setSuccess("");
+    try {
+      const res = await fetch(`/api/staff/applications/${id}/priority`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priority: newPriority }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "فشل تحديث الأولوية");
+        return;
+      }
+      setApp((current) => current ? { ...current, priority: newPriority } : current);
+      setSuccess("تم تحديث الأولوية بنجاح");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch {
+      setError("خطأ في الاتصال");
+    } finally {
+      setPriorityLoading(false);
+    }
+  };
+
   const changeStage = async () => {
     if (!app || toStage === app.stage) return;
     if (toStage === "REJECTED" && notes.trim().length < 5) {
@@ -349,6 +377,24 @@ export default function StaffApplicationDetailPage() {
             </div>
           )}
           <div className="rounded-[18px] bg-white border border-black/5 p-5">
+            {canEdit && (
+              <div className="mb-5 pb-5 border-b border-black/5">
+                <label className="block text-[11px] font-bold text-black/70 mb-1.5">
+                  أولوية الطلب
+                </label>
+                <select
+                  value={app.priority}
+                  onChange={(event) => void changePriority(event.target.value)}
+                  disabled={priorityLoading}
+                  className="input"
+                >
+                  <option value="LOW">منخفضة</option>
+                  <option value="NORMAL">عادية</option>
+                  <option value="HIGH">عالية</option>
+                  <option value="URGENT">عاجلة</option>
+                </select>
+              </div>
+            )}
             <h3 className="font-extrabold">نقل المرحلة</h3>
             <select
               value={toStage}
