@@ -11,6 +11,7 @@ import {
   FileText,
   Loader2,
   MapPin,
+  MessageCircle,
   User,
   UserPlus,
   XCircle,
@@ -117,6 +118,16 @@ type Detail = {
     createdAt: string;
   }>;
   assignedTo: { id: string; fullName: string; email: string } | null;
+  appeal: {
+    id: string;
+    status: string;
+    reason: string;
+    details: string | null;
+    decisionNotes: string | null;
+    reviewedAt: string | null;
+    createdAt: string;
+    reviewedBy: { id: string; fullName: string } | null;
+  } | null;
 };
 type Staff = {
   id: string;
@@ -481,6 +492,64 @@ export default function StaffApplicationDetailPage() {
                   بتاريخ: {new Date(app.rejectedAt).toLocaleDateString('ar-EG')}
                 </div>
               )}
+            </div>
+          )}
+          {app.appeal && (
+            <div className="rounded-[18px] bg-white border border-black/5 p-5">
+              <h3 className="font-extrabold flex items-center gap-2 mb-4">
+                <MessageCircle className="w-4 h-4 text-[#0d7a3e]" />
+                التظلم
+              </h3>
+              <div className="space-y-2">
+                <div className="rounded-xl bg-[#f9fbf9] border border-black/5 p-3">
+                  <div className="text-[10px] text-black/50 font-bold">الحالة</div>
+                  <div className="mt-1 text-[12px] font-bold">
+                    {app.appeal.status === "PENDING"
+                      ? "قيد المراجعة"
+                      : app.appeal.status === "APPROVED"
+                        ? "مقبول"
+                        : app.appeal.status === "REJECTED"
+                          ? "مرفوض"
+                          : app.appeal.status}
+                  </div>
+                </div>
+                <div className="rounded-xl bg-[#f9fbf9] border border-black/5 p-3">
+                  <div className="text-[10px] text-black/50 font-bold">السبب</div>
+                  <div className="mt-1 text-[12px] leading-6">{app.appeal.reason}</div>
+                </div>
+                {app.appeal.details && (
+                  <div className="rounded-xl bg-[#f9fbf9] border border-black/5 p-3">
+                    <div className="text-[10px] text-black/50 font-bold">تفاصيل</div>
+                    <div className="mt-1 text-[12px] text-black/70 leading-6">
+                      {app.appeal.details}
+                    </div>
+                  </div>
+                )}
+                {app.appeal.reviewedBy && (
+                  <div className="rounded-xl bg-[#f9fbf9] border border-black/5 p-3">
+                    <div className="text-[10px] text-black/50 font-bold">المراجع</div>
+                    <div className="mt-1 text-[12px] font-bold">
+                      {app.appeal.reviewedBy.fullName}
+                    </div>
+                  </div>
+                )}
+                {app.appeal.reviewedAt && (
+                  <div className="rounded-xl bg-[#f9fbf9] border border-black/5 p-3">
+                    <div className="text-[10px] text-black/50 font-bold">تاريخ المراجعة</div>
+                    <div className="mt-1 text-[12px]">
+                      {new Date(app.appeal.reviewedAt).toLocaleString("ar-EG")}
+                    </div>
+                  </div>
+                )}
+                {app.appeal.decisionNotes && (
+                  <div className="rounded-xl bg-[#f9fbf9] border border-black/5 p-3">
+                    <div className="text-[10px] text-black/50 font-bold">قرار المراجعة</div>
+                    <div className="mt-1 text-[12px] text-black/70 leading-6">
+                      {app.appeal.decisionNotes}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
           <div className="rounded-[18px] bg-white border border-black/5 p-5">

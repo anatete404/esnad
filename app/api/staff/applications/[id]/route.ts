@@ -48,6 +48,11 @@ export async function GET(
           surveyor: { select: { id: true, fullName: true } },
         },
       },
+      appeal: {
+        include: {
+          reviewedBy: { select: { id: true, fullName: true } },
+        },
+      },
     },
   })
 
@@ -55,8 +60,10 @@ export async function GET(
     return NextResponse.json({ error: 'الطلب غير موجود' }, { status: 404 })
   }
 
+  const canViewAppeals = can(session, 'appeals.view')
+
   return NextResponse.json({
-    application,
+    application: canViewAppeals ? application : { ...application, appeal: null },
     permissions: {
       canEditPayments: can(session, 'payments.edit'),
       canDeletePayments: can(session, 'payments.delete'),
@@ -68,6 +75,7 @@ export async function GET(
       canAssign: can(session, 'applications.assign'),
       canTransfer: can(session, 'applications.transfer'),
       canVerifyDocs: can(session, 'documents.verify'),
+      canViewAppeals,
     },
   })
 }
