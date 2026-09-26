@@ -31,7 +31,7 @@ export async function POST(
 
     const application = await prisma.application.findUnique({
       where: { id },
-      select: { id: true, assignedToId: true, branchId: true },
+      select: { id: true, assignedToId: true, branchId: true, trackingNumber: true },
     })
 
     if (!application) {
@@ -90,6 +90,21 @@ export async function POST(
       oldValue: { assignedToId: application.assignedToId },
       newValue: { assignedToId: data.assignedToId },
     })
+
+    if (
+      data.assignedToId &&
+      data.assignedToId !== application.assignedToId &&
+      data.assignedToId !== session.id
+    ) {
+      await prisma.notification.create({
+        data: {
+          userId: data.assignedToId,
+          applicationId: id,
+          title: 'تم إسناد طلب إليك',
+          body: `تم إسناد الطلب ${application.trackingNumber} إليك بواسطة ${session.fullName}`,
+        },
+      })
+    }
 
     return NextResponse.json({ success: true, application: updated })
   } catch (err) {

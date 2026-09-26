@@ -59,7 +59,7 @@ export async function POST(
         application: scopeWhere(session, 'BRANCH'),
       },
       include: {
-        application: { select: { branchId: true } },
+        application: { select: { branchId: true, trackingNumber: true } },
       },
     })
 
@@ -106,6 +106,42 @@ export async function POST(
       entityId: data.stepId,
       newValue: { applicationId: id, level: step.level, decision: data.decision },
     })
+
+    if (data.decision === 'APPROVED') {
+      const nextStep = await prisma.approvalStep.findFirst({
+        where: { applicationId: id, level: step.level + 1, status: 'PENDING' },
+      })
+
+      if (nextStep) {
+        const recipients = await prisma.user.findMany({
+          where: {
+            isActive: true,
+            terminatedAt: null,
+            role: { key: nextStep.roleRequired },
+            ...(step.application.branchId
+              ? { branchId: step.application.branchId }
+              : {}),
+          },
+          select: { id: true },
+        })
+        const eligibleRecipients = recipients.filter(
+          (recipient) => recipient.id !== session.id,
+        )
+
+        await Promise.all(
+          eligibleRecipients.map((recipient) =>
+            prisma.notification.create({
+              data: {
+                userId: recipient.id,
+                applicationId: id,
+                title: 'موافقة مطلوبة',
+                body: `الطلب ${step.application.trackingNumber} بحاجة لموافقتك (${nextStep.title})`,
+              },
+            }),
+          ),
+        )
+      }
+    }
 
     return NextResponse.json({ success: true, step: updated })
   } catch (err) {
