@@ -27,7 +27,7 @@ export async function GET() {
       href: string
       priority: 'high' | 'normal'
     }>,
-    stats: {} as Record<string, number>,
+    stats: {} as Record<string, number | string>,
   }
 
   if (role === 'receptionist' || role === 'data_entry') {
@@ -328,6 +328,47 @@ export async function GET() {
       priority: 'normal' as const,
     }))
   }
+
+  const now = new Date()
+  const todayStart = new Date(now)
+  todayStart.setHours(0, 0, 0, 0)
+  const todayEnd = new Date(todayStart)
+  todayEnd.setDate(todayEnd.getDate() + 1)
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+  const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+
+  const [todayAttendance, monthAttendance] = await Promise.all([
+    prisma.attendance.findFirst({
+      where: {
+        userId: session.id,
+        checkInAt: { gte: todayStart, lt: todayEnd },
+      },
+      select: { checkOutAt: true },
+      orderBy: { checkInAt: 'desc' },
+    }),
+    prisma.attendance.findMany({
+      where: {
+        userId: session.id,
+        checkInAt: { gte: monthStart, lt: nextMonthStart },
+      },
+      select: { checkInAt: true },
+    }),
+  ])
+
+  const monthAttendanceDays = new Set(
+    monthAttendance.map(({ checkInAt }) => {
+      const attendanceDate = new Date(checkInAt)
+      attendanceDate.setHours(0, 0, 0, 0)
+      return attendanceDate.getTime()
+    }),
+  ).size
+
+  result.stats.todayAttendance = !todayAttendance
+    ? 'لم يحضر'
+    : todayAttendance.checkOutAt
+      ? 'انصرف'
+      : 'حاضر'
+  result.stats.monthAttendanceDays = monthAttendanceDays
 
   return NextResponse.json(result)
 }

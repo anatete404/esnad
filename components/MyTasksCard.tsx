@@ -18,7 +18,7 @@ type Task = {
   priority: 'high' | 'normal'
 }
 
-type Stats = Record<string, number>
+type Stats = Record<string, number | string>
 
 const STAT_LABELS: Record<string, string> = {
   newApplications: 'طلبات جديدة',
@@ -37,6 +37,8 @@ const STAT_LABELS: Record<string, string> = {
   totalApplications: 'إجمالي الطلبات',
   activeApplications: 'طلبات نشطة',
   activeUsers: 'موظفون نشطون',
+  todayAttendance: 'حضور اليوم',
+  monthAttendanceDays: 'أيام الحضور هذا الشهر',
 }
 
 export default function MyTasksCard() {
@@ -67,7 +69,9 @@ export default function MyTasksCard() {
     )
   }
 
-  const statEntries = Object.entries(stats).filter(([, v]) => typeof v === 'number')
+  const statEntries = Object.entries(stats).filter(
+    ([, value]) => typeof value === 'number' || typeof value === 'string',
+  )
 
   return (
     <div className="rounded-[20px] bg-white border border-black/5 overflow-hidden">
@@ -92,7 +96,7 @@ export default function MyTasksCard() {
           {statEntries.map(([key, value]) => (
             <div key={key} className="rounded-xl bg-[#f9fbf9] border border-black/5 p-3 text-center">
               <div className="text-[20px] font-extrabold text-[#0d7a3e]">
-                {value.toLocaleString('ar-EG')}
+                {typeof value === 'number' ? value.toLocaleString('ar-EG') : value}
               </div>
               <div className="text-[10px] text-black/55 font-bold mt-0.5">
                 {STAT_LABELS[key] || key}
