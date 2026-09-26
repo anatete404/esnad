@@ -106,6 +106,8 @@ export async function POST(
         updateData.rejectionReason = data.notes
         updateData.rejectedAt = new Date()
         updateData.rejectedById = session.id
+      } else {
+        updateData.reviewedById = session.id
       }
 
       const updated = await tx.application.update({
