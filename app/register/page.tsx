@@ -112,7 +112,6 @@ export default function RegisterPage() {
                   className="input"
                   value={form.fullName}
                   onChange={(event) => update('fullName', event.target.value)}
-                  placeholder="حسن حسن علي محمد"
                   required
                 />
               </Field>
