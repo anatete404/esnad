@@ -2,6 +2,10 @@
 
 import { useEffect, useRef } from 'react'
 import * as maplibregl from 'maplibre-gl'
+
+if (typeof window !== 'undefined') {
+  maplibregl.setWorkerUrl('/maplibre/maplibre-gl-worker.mjs')
+}
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 type Props = {

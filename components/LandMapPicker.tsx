@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import * as maplibregl from 'maplibre-gl'
+
+if (typeof window !== 'undefined') {
+  maplibregl.setWorkerUrl('/maplibre/maplibre-gl-worker.mjs')
+}
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { Search, MapPin, Loader2, X, Crosshair } from 'lucide-react'
 
