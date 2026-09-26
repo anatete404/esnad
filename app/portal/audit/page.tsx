@@ -18,6 +18,9 @@ type AuditEntry = {
   oldValue: string | null
   newValue: string | null
   ip: string | null
+  userAgent: string | null
+  branchId: string | null
+  actorBranchId: string | null
   createdAt: string
   user: {
     id: string
@@ -25,6 +28,8 @@ type AuditEntry = {
     email: string
     employeeNumber?: string | null
   } | null
+  branch: { id: string; name: string } | null
+  actorBranch: { id: string; name: string } | null
 }
 const ACTION_COLORS: Record<string, string> = {
   CITIZEN_REGISTER: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -149,6 +154,11 @@ export default function AuditLogPage() {
                             #{log.entityId.slice(0, 8)}
                           </span>
                         )}
+                        {log.branch && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            {log.branch.name}
+                          </span>
+                        )}
                       </div>
                       <div className="mt-1 flex gap-3 text-[11px] text-black/60">
                         {log.user ? (
@@ -158,6 +168,11 @@ export default function AuditLogPage() {
                             {log.user.employeeNumber && (
                               <span className="text-xs text-black/50">
                                 {log.user.employeeNumber}
+                              </span>
+                            )}
+                            {log.actorBranch && log.actorBranch.id !== log.branch?.id && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                                {log.actorBranch.name}
                               </span>
                             )}
                           </span>

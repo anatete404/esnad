@@ -44,6 +44,8 @@ export async function GET(req: Request) {
       where,
       include: {
         user: { select: { id: true, fullName: true, email: true, employeeNumber: true } },
+        branch: { select: { id: true, name: true } },
+        actorBranch: { select: { id: true, name: true } },
       },
       orderBy: { createdAt: 'desc' },
       skip: (page - 1) * pageSize,
