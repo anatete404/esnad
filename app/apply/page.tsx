@@ -17,18 +17,7 @@ import {
 import PublicHeader from '@/components/PublicHeader'
 import PublicFooter from '@/components/PublicFooter'
 import DocumentUploader, { type UploadedDoc } from '@/components/DocumentUploader'
-
-const GOVS = [
-  'القاهرة','الجيزة','الفيوم','بني سويف','المنيا','أسيوط','سوهاج','قنا',
-  'الأقصر','أسوان','الوادي الجديد','مطروح','البحيرة','كفر الشيخ','الدقهلية',
-  'الشرقية','المنوفية','الغربية','دمياط','بورسعيد','الإسماعيلية','السويس',
-  'شمال سيناء','جنوب سيناء','البحر الأحمر',
-]
-
-const ACTIVITIES = ['زراعي', 'مباني', 'استصلاح', 'غير مستغل']
-const WATER_SOURCES = ['بئر جوفي', 'ترعة', 'مياه جوفية + ترعة', 'لا يوجد']
-const LAND_STATUSES = ['مزروعة بالكامل', 'مزروعة جزئياً', 'مستصلحة غير مزروعة', 'صحراوية']
-const HAND_REASONS = ['استصلاح', 'شراء عرفي', 'ميراث', 'وضع يد هادئ']
+import { GOVS, ACTIVITIES, WATER_SOURCES, LAND_STATUSES, HAND_REASONS } from '@/lib/govs'
 
 const STEPS = [
   { n: 1, t: 'بيانات الأرض', icon: MapPin },

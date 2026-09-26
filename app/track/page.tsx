@@ -5,14 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Search, Loader2, Ticket } from 'lucide-react'
 import PublicHeader from '@/components/PublicHeader'
 import PublicFooter from '@/components/PublicFooter'
-
-const GOVS = [
-  'القاهرة', 'الجيزة', 'الفيوم', 'بني سويف', 'المنيا', 'أسيوط',
-  'سوهاج', 'قنا', 'الأقصر', 'أسوان', 'الوادي الجديد', 'مطروح',
-  'البحيرة', 'كفر الشيخ', 'الدقهلية', 'الشرقية', 'المنوفية',
-  'الغربية', 'دمياط', 'بورسعيد', 'الإسماعيلية', 'السويس',
-  'شمال سيناء', 'جنوب سيناء', 'البحر الأحمر',
-]
+import { GOVS } from '@/lib/govs'
 
 export default function TrackPage() {
   const router = useRouter()

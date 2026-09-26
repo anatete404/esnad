@@ -7,14 +7,7 @@ import { useState } from 'react'
 import PublicFooter from '@/components/PublicFooter'
 import PublicHeader from '@/components/PublicHeader'
 import { isValidEgyptianNationalId } from '@/lib/egyptianNationalId'
-
-const GOVS = [
-  'القاهرة', 'الجيزة', 'الفيوم', 'بني سويف', 'المنيا', 'أسيوط',
-  'سوهاج', 'قنا', 'الأقصر', 'أسوان', 'الوادي الجديد', 'مطروح',
-  'البحيرة', 'كفر الشيخ', 'الدقهلية', 'الشرقية', 'المنوفية',
-  'الغربية', 'دمياط', 'بورسعيد', 'الإسماعيلية', 'السويس',
-  'شمال سيناء', 'جنوب سيناء', 'البحر الأحمر',
-]
+import { GOVS } from '@/lib/govs'
 
 export default function RegisterPage() {
   const router = useRouter()
