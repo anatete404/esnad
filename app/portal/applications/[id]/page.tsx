@@ -50,6 +50,8 @@ type Detail = {
   status: string;
   statusNote: string | null;
   statusNoteManual: boolean;
+  rejectionReason: string | null;
+  rejectedAt: string | null;
   submittedAt: string;
   updatedAt: string;
   citizen: { fullName: string; nationalId: string; phone: string };
@@ -156,6 +158,10 @@ export default function StaffApplicationDetailPage() {
   }, []);
   const changeStage = async () => {
     if (!app || toStage === app.stage) return;
+    if (toStage === "REJECTED" && notes.trim().length < 5) {
+      setError("سبب الرفض إجباري (5 أحرف على الأقل)");
+      return;
+    }
     setActionLoading(true);
     setError("");
     setSuccess("");
@@ -317,6 +323,17 @@ export default function StaffApplicationDetailPage() {
           </Card>
         </div>
         <div className="space-y-4">
+          {app.rejectionReason && (
+            <div className="rounded-[18px] bg-amber-50 border-2 border-amber-300 p-5">
+              <div className="font-extrabold text-amber-900 mb-2">سبب الإيقاف</div>
+              <div className="text-[13px] text-amber-800 leading-7">{app.rejectionReason}</div>
+              {app.rejectedAt && (
+                <div className="mt-2 text-[11px] text-amber-700">
+                  بتاريخ: {new Date(app.rejectedAt).toLocaleDateString('ar-EG')}
+                </div>
+              )}
+            </div>
+          )}
           <div className="rounded-[18px] bg-white border border-black/5 p-5">
             <h3 className="font-extrabold">نقل المرحلة</h3>
             <select
@@ -333,7 +350,7 @@ export default function StaffApplicationDetailPage() {
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="ملاحظات (اختياري)"
+              placeholder={toStage === "REJECTED" ? "سبب الرفض (إجباري — 5 أحرف على الأقل)" : "ملاحظات (اختياري)"}
               className="input mt-3"
             />
             <button

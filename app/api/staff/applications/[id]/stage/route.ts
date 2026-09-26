@@ -18,10 +18,17 @@ const VALID_STAGES = [
   'REJECTED',
 ] as const
 
-const schema = z.object({
-  toStage: z.enum(VALID_STAGES),
-  notes: z.string().max(1000).optional(),
-})
+const schema = z
+  .object({
+    toStage: z.enum(VALID_STAGES),
+    notes: z.string().max(1000).optional(),
+  })
+  .refine(
+    (d) =>
+      d.toStage !== 'REJECTED' ||
+      (typeof d.notes === 'string' && d.notes.trim().length >= 5),
+    { message: 'سبب الرفض إجباري (5 أحرف على الأقل)', path: ['notes'] }
+  )
 
 export async function POST(
   req: Request,
@@ -75,28 +82,35 @@ export async function POST(
     }
 
     // تحديد الحالة الجديدة
+    const isReject = data.toStage === 'REJECTED'
     let newStatus = application.status
     let completedAt: Date | null = null
 
     if (data.toStage === 'COMPLETED') {
       newStatus = 'COMPLETED'
       completedAt = new Date()
-    } else if (data.toStage === 'REJECTED') {
-      newStatus = 'REJECTED'
-      completedAt = new Date()
+    } else if (isReject) {
+      newStatus = 'ON_HOLD'
     } else if (application.status === 'ON_HOLD') {
       newStatus = 'ACTIVE'
     }
 
     const result = await prisma.$transaction(async (tx) => {
       // تحديث الطلب
+      const updateData: Record<string, unknown> = {
+        stage: isReject ? application.stage : data.toStage,
+        status: newStatus,
+        completedAt: isReject ? null : completedAt,
+      }
+      if (isReject) {
+        updateData.rejectionReason = data.notes
+        updateData.rejectedAt = new Date()
+        updateData.rejectedById = session.id
+      }
+
       const updated = await tx.application.update({
         where: { id },
-        data: {
-          stage: data.toStage,
-          status: newStatus,
-          completedAt,
-        },
+        data: updateData,
         select: {
           id: true,
           stage: true,
@@ -110,8 +124,8 @@ export async function POST(
         data: {
           applicationId: id,
           fromStage: application.stage,
-          toStage: data.toStage,
-          action: 'TRANSFER',
+          toStage: isReject ? 'REJECTED' : data.toStage,
+          action: isReject ? 'REJECT' : 'TRANSFER',
           notes: data.notes || null,
           userId: session.id,
         },
@@ -128,8 +142,10 @@ export async function POST(
           data: {
             citizenId: app.citizenId,
             applicationId: id,
-            title: 'تم تحديث حالة طلبك',
-            body: `الطلب ${app.trackingNumber} انتقل إلى مرحلة: ${data.toStage}`,
+            title: isReject ? 'تم إيقاف طلبك' : 'تم تحديث حالة طلبك',
+            body: isReject
+              ? `الطلب ${app.trackingNumber} تم إيقافه. السبب: ${data.notes}`
+              : `الطلب ${app.trackingNumber} انتقل إلى مرحلة: ${data.toStage}`,
           },
         })
       }
@@ -145,11 +161,13 @@ export async function POST(
       userId: session.id,
       branchId: application.branchId,
       actorBranchId: session.branchId,
-      action: 'APPLICATION_STAGE_CHANGE',
+      action: isReject ? 'APPLICATION_REJECT' : 'APPLICATION_STAGE_CHANGE',
       entity: 'Application',
       entityId: id,
       oldValue: { stage: application.stage, status: application.status },
-      newValue: { stage: data.toStage, status: newStatus },
+      newValue: isReject
+        ? { status: newStatus, rejectionReason: data.notes }
+        : { stage: data.toStage, status: newStatus },
     })
 
     return NextResponse.json({ success: true, application: result })

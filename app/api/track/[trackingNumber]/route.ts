@@ -40,6 +40,8 @@ export async function GET(
       submittedAt: true,
       updatedAt: true,
       completedAt: true,
+      rejectionReason: true,
+      rejectedAt: true,
       land: {
         select: {
           gov: true,

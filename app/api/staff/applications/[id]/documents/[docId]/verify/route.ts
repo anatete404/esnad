@@ -23,6 +23,12 @@ export async function POST(
     const body = await req.json().catch(() => ({}))
     const verify = body.verify === true
     const notes = typeof body.notes === 'string' ? body.notes : null
+    if (!verify && (!notes || notes.trim().length < 5)) {
+      return NextResponse.json(
+        { error: 'سبب الرفض إجباري (5 أحرف على الأقل)' },
+        { status: 400 }
+      )
+    }
 
     const doc = await prisma.document.findFirst({
       where: { id: docId, applicationId: id },
@@ -56,6 +62,7 @@ export async function POST(
         verifiedById: verify ? session.id : null,
         verifiedAt: verify ? new Date() : null,
         notes,
+        rejectionReason: verify ? null : notes,
       },
       select: {
         id: true,
@@ -63,6 +70,33 @@ export async function POST(
         verifiedAt: true,
       },
     })
+
+    if (!verify) {
+      await prisma.application.update({
+        where: { id },
+        data: {
+          status: 'ON_HOLD',
+          rejectionReason: notes,
+          rejectedAt: new Date(),
+          rejectedById: session.id,
+        },
+      })
+
+      const app = await prisma.application.findUnique({
+        where: { id },
+        select: { citizenId: true, trackingNumber: true },
+      })
+      if (app) {
+        await prisma.notification.create({
+          data: {
+            citizenId: app.citizenId,
+            applicationId: id,
+            title: 'تم إيقاف طلبك مؤقتًا',
+            body: `الطلب ${app.trackingNumber} تم إيقافه. السبب: ${notes}`,
+          },
+        })
+      }
+    }
 
     await logAudit({
       userId: session.id,

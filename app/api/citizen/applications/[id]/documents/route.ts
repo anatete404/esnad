@@ -132,6 +132,23 @@ export async function POST(
       },
     })
 
+    // Auto-resume if application was ON_HOLD due to a rejection
+    const fullApp = await prisma.application.findUnique({
+      where: { id },
+      select: { status: true, rejectionReason: true },
+    })
+    if (fullApp?.status === 'ON_HOLD' && fullApp.rejectionReason) {
+      await prisma.application.update({
+        where: { id },
+        data: {
+          status: 'ACTIVE',
+          rejectionReason: null,
+          rejectedAt: null,
+          rejectedById: null,
+        },
+      })
+    }
+
     await logAudit({
       branchId: application.branchId,
       actorBranchId: null,

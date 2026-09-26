@@ -2,6 +2,7 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import {
+  AlertCircle,
   ArrowRight,
   Calendar,
   CheckCircle2,
@@ -53,6 +54,8 @@ export default async function TrackingDetailPage({
       submittedAt: true,
       updatedAt: true,
       completedAt: true,
+      rejectionReason: true,
+      rejectedAt: true,
       citizen: {
         select: {
           fullName: true,
@@ -111,6 +114,28 @@ export default async function TrackingDetailPage({
           <ArrowRight className="w-4 h-4" />
           بحث برقم آخر
         </Link>
+        {application.rejectionReason && (
+          <div className="mb-6 rounded-[18px] bg-amber-50 border-2 border-amber-300 p-5">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-amber-200 grid place-items-center shrink-0">
+                <AlertCircle className="w-5 h-5 text-amber-700" />
+              </div>
+              <div className="flex-1">
+                <div className="font-extrabold text-amber-900 text-[15px] mb-1">
+                  تم إيقاف طلبك مؤقتًا
+                </div>
+                <div className="text-[13px] text-amber-800 leading-6">
+                  {application.rejectionReason}
+                </div>
+                {application.rejectedAt && (
+                  <div className="mt-2 text-[11px] text-amber-700">
+                    بتاريخ: {formatDate(application.rejectedAt)}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
         <ApplicationDetailsCard
           application={application}
           applicationId={application.id}

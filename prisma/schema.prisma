@@ -106,6 +106,9 @@ model Application {
   statusNote          String?
   statusNoteManual    Boolean   @default(false)
   statusNoteUpdatedAt DateTime?
+  rejectionReason     String?
+  rejectedAt          DateTime?
+  rejectedById        String?
 
   land          Land?
   documents     Document[]
@@ -160,6 +163,7 @@ model Document {
   verifiedBy   User?     @relation(fields: [verifiedById], references: [id])
   verifiedAt   DateTime?
   notes        String?
+  rejectionReason String?
   uploadedAt   DateTime  @default(now())
 }
 

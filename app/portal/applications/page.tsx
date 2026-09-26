@@ -34,6 +34,7 @@ type Row = {
   submittedAt: string
   citizen: { fullName: string; nationalId: string; phone: string }
   land: { gov: string | null; center: string | null; totalFaddan: number } | null
+  rejectionReason: string | null
   assignedTo: { fullName: string } | null
   _count: { documents: number }
 }
@@ -58,6 +59,7 @@ export default function ApplicationsListPage() {
   const [pickedStaff, setPickedStaff] = useState('')
   const [pickedStage, setPickedStage] = useState('')
   const [notes, setNotes] = useState('')
+  const [isAdminOrManager, setIsAdminOrManager] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -95,6 +97,15 @@ export default function ApplicationsListPage() {
 
   useEffect(() => {
     void loadStaff()
+  }, [])
+  useEffect(() => {
+    fetch('/api/auth/staff/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const role = d?.user?.roleKey
+        setIsAdminOrManager(role === 'admin' || role === 'branch_manager')
+      })
+      .catch(() => {})
   }, [])
 
   const toggleOne = (id: string) => {
@@ -217,7 +228,11 @@ export default function ApplicationsListPage() {
                       {selected.size === items.length ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
                     </button>
                   </th>
-                  {['رقم التتبع','المواطن','الموقع','المساحة','المرحلة','الحالة','مسند إلى',''].map((h) => (
+                  {[
+                    'رقم التتبع','المواطن','الموقع','المساحة','المرحلة','الحالة',
+                    ...(isAdminOrManager ? ['سبب الإيقاف'] : []),
+                    'مسند إلى',''
+                  ].map((h) => (
                     <th key={h} className="text-right px-4 py-3 font-bold text-black/60">{h}</th>
                   ))}
                 </tr>
@@ -253,6 +268,17 @@ export default function ApplicationsListPage() {
                         {STATUS_LABELS[app.status] || app.status}
                       </span>
                     </td>
+                    {isAdminOrManager && (
+                      <td className="px-4 py-3 max-w-[200px]">
+                        {app.rejectionReason ? (
+                          <span className="text-[11px] text-amber-700 font-semibold line-clamp-2" title={app.rejectionReason}>
+                            {app.rejectionReason}
+                          </span>
+                        ) : (
+                          <span className="text-black/30">—</span>
+                        )}
+                      </td>
+                    )}
                     <td className="px-4 py-3">{app.assignedTo?.fullName || 'غير مسند'}</td>
                     <td className="px-4 py-3">
                       <Link href={`/portal/applications/${app.id}`} className="w-8 h-8 rounded-full bg-[#0d7a3e]/10 grid place-items-center text-[#0d7a3e]">
