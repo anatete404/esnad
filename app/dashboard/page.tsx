@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { FileText, MapPinned, ShieldCheck, UserRound } from 'lucide-react'
+import { AlertCircle, Clock, FileText, MapPinned, ShieldCheck } from 'lucide-react'
 import { getCitizenSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
@@ -15,7 +15,10 @@ export default async function CitizenDashboard() {
     include: {
       applications: {
         orderBy: { submittedAt: 'desc' },
-        include: { land: true },
+        include: {
+          land: true,
+          _count: { select: { documents: true } },
+        },
       },
     },
   })
@@ -24,11 +27,30 @@ export default async function CitizenDashboard() {
     redirect('/login')
   }
 
+  const STAGE_LABELS: Record<string, string> = {
+    SUBMITTED: 'تم التقديم',
+    INITIAL_REVIEW: 'مراجعة أولية',
+    DOCS_REVIEW: 'فحص المستندات',
+    SURVEY: 'معاينة ميدانية',
+    PRICING: 'تسعير',
+    COMMITTEE: 'عرض على اللجنة',
+    CONTRACT: 'تعاقد',
+    COMPLETED: 'منجز',
+    REJECTED: 'مرفوض',
+  }
+  const STATUS_LABELS: Record<string, string> = {
+    ACTIVE: 'نشط',
+    ON_HOLD: 'معلّق',
+    COMPLETED: 'منجز',
+    REJECTED: 'مرفوض',
+  }
+  const totalDocs = citizen.applications.reduce((sum, a) => sum + (a._count?.documents || 0), 0)
   const stats = [
     { label: 'طلبات سارية', value: String(citizen.applications.filter((a) => a.status === 'ACTIVE').length), icon: FileText },
-    { label: 'منجز', value: String(citizen.applications.filter((a) => a.status === 'COMPLETED').length), icon: ShieldCheck },
-    { label: 'مستندات', value: '0', icon: UserRound },
-    { label: 'موقع', value: citizen.gov || 'غير محدد', icon: MapPinned },
+    { label: 'معلّقة', value: String(citizen.applications.filter((a) => a.status === 'ON_HOLD').length), icon: AlertCircle },
+    { label: 'منجزة', value: String(citizen.applications.filter((a) => a.status === 'COMPLETED').length), icon: ShieldCheck },
+    { label: 'إجمالي المستندات', value: String(totalDocs), icon: Clock },
+    { label: 'الموقع', value: citizen.gov || 'غير محدد', icon: MapPinned },
   ]
 
   return (
@@ -57,7 +79,7 @@ export default async function CitizenDashboard() {
           </div>
         </header>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {stats.map((item) => (
             <div key={item.label} className="rounded-[20px] border border-black/5 bg-white p-5 shadow-sm">
               <div className="flex items-center justify-between">
@@ -89,13 +111,34 @@ export default async function CitizenDashboard() {
             ) : (
               citizen.applications.map((application) => (
                 <div key={application.id} className="flex flex-col gap-3 rounded-2xl border border-black/5 bg-[#f9fbf9] p-4 md:flex-row md:items-center md:justify-between">
-                  <div>
+                  <div className="flex-1">
                     <div className="text-[13px] font-extrabold text-[#0a5c2f]">{application.trackingNumber}</div>
-                    <div className="text-[12px] text-black/60">{application.land?.gov || 'موقع غير محدد'} • {application.stage}</div>
+                    <div className="text-[12px] text-black/60">
+                      {application.land?.gov || 'موقع غير محدد'} • {STAGE_LABELS[application.stage] || application.stage}
+                    </div>
+                    {application.status === 'ON_HOLD' && application.rejectionReason && (
+                      <div className="mt-2 flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 p-2">
+                        <AlertCircle className="w-3.5 h-3.5 text-amber-700 mt-0.5 shrink-0" />
+                        <div className="text-[11px] text-amber-800 leading-5">
+                          <span className="font-bold">سبب الإيقاف: </span>
+                          {application.rejectionReason}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 text-[12px]">
-                    <span className="rounded-full bg-[#e8f4ed] px-2 py-1 font-bold text-[#0d7a3e]">{application.status}</span>
-                    <Link href={`/track/${application.trackingNumber}`} className="rounded-full border border-black/10 px-3 py-1.5 font-bold text-black">
+                    <span className={`rounded-full px-2 py-1 font-bold ${
+                      application.status === 'ON_HOLD'
+                        ? 'bg-amber-50 text-amber-800'
+                        : application.status === 'COMPLETED'
+                          ? 'bg-green-50 text-green-700'
+                          : application.status === 'REJECTED'
+                            ? 'bg-red-50 text-red-700'
+                            : 'bg-[#e8f4ed] text-[#0d7a3e]'
+                    }`}>
+                      {STATUS_LABELS[application.status] || application.status}
+                    </span>
+                    <Link href={`/dashboard/${application.id}`} className="rounded-full border border-black/10 px-3 py-1.5 font-bold text-black hover:bg-black/5">
                       تفاصيل
                     </Link>
                   </div>

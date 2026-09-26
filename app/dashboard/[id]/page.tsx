@@ -104,6 +104,32 @@ export default async function ApplicationDetailPage({
           </div>
         </div>
 
+        {application.status === 'ON_HOLD' && application.rejectionReason && (
+          <div className="mt-6 rounded-[18px] bg-amber-50 border-2 border-amber-300 p-5">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-amber-200 grid place-items-center shrink-0">
+                <AlertCircle className="w-5 h-5 text-amber-700" />
+              </div>
+              <div className="flex-1">
+                <div className="font-extrabold text-amber-900 text-[15px] mb-1">
+                  الطلب موقوف مؤقتًا
+                </div>
+                <div className="text-[13px] text-amber-800 leading-6">
+                  {application.rejectionReason}
+                </div>
+                {application.rejectedAt && (
+                  <div className="mt-2 text-[11px] text-amber-700">
+                    بتاريخ: {formatDate(application.rejectedAt)}
+                  </div>
+                )}
+                <div className="mt-3 text-[11px] text-amber-700 leading-5">
+                  يمكنك رفع المستندات المطلوبة من صفحة الطلب لاستئناف المعالجة تلقائيًا.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatCard icon={Calendar} label="تاريخ التقديم" value={formatDate(application.submittedAt)} />
           <StatCard icon={Clock} label="آخر تحديث" value={formatDate(application.updatedAt)} />

@@ -45,6 +45,7 @@ export default function ApplyPage() {
   const [applicationId, setApplicationId] = useState<string | null>(null)
   const [documents, setDocuments] = useState<UploadedDoc[]>([])
   const [createdTrackingNumber, setCreatedTrackingNumber] = useState('')
+  const [finalizing, setFinalizing] = useState(false)
 
   const [form, setForm] = useState({
     gov: '',
@@ -94,6 +95,9 @@ export default function ApplyPage() {
     if (s === 2) {
       if (!form.handReason) return 'سبب وضع اليد مطلوب'
       if (!form.waterSource) return 'مصدر المياه مطلوب'
+    }
+    if (s === 3) {
+      if (documents.length === 0) return 'يجب رفع مستند واحد على الأقل قبل المتابعة'
     }
     return null
   }
@@ -154,6 +158,30 @@ export default function ApplyPage() {
       setError('تعذّر الاتصال بالسيرفر')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const finalize = async () => {
+    if (!applicationId) {
+      setError('لم يتم إنشاء الطلب بعد')
+      return
+    }
+    setError('')
+    setFinalizing(true)
+    try {
+      const res = await fetch(`/api/citizen/applications/${applicationId}/finalize`, {
+        method: 'POST',
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'حدث خطأ في الإرسال النهائي')
+        return
+      }
+      setSuccess({ trackingNumber: createdTrackingNumber })
+    } catch {
+      setError('تعذر الاتصال بالسيرفر')
+    } finally {
+      setFinalizing(false)
     }
   }
 
@@ -564,11 +592,11 @@ export default function ApplyPage() {
             ) : (
               <button
                 type="button"
-                onClick={() => setSuccess({ trackingNumber: createdTrackingNumber })}
-                disabled={loading}
+                onClick={() => void finalize()}
+                disabled={finalizing}
                 className="h-11 px-7 rounded-full bg-[#c89a2c] text-black font-bold text-[13px] flex items-center gap-2 disabled:opacity-50"
               >
-                {loading ? (
+                {finalizing ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" /> جارٍ الإرسال...
                   </>
